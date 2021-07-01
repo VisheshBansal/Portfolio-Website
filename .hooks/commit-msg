@@ -1,0 +1,11 @@
+#!/bin/sh
+commit_message=$(cat "$1" | sed -e 's/^[[:space:]]*//')
+matched_str=$(echo "$commit_message" | grep -E "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z]+\))?: [a-zA-Z0-9 ]+$")
+echo "$matched_str"
+if [ "$matched_str" != "" ];
+then
+	exit 0
+else
+	echo "Commit rejected due to incorrect commit message format. See commit standards here - https://www.conventionalcommits.org/en/v1.0.0/"
+	exit 1
+fi
