@@ -37,6 +37,7 @@ export default {
 div {
   width: 100%;
 }
+
 h1 {
   font-size: 1.8rem;
   color: white;
@@ -46,6 +47,7 @@ h1 {
   width: 75px;
   margin-block-start: 0;
 }
+
 p {
   color: white;
   font-weight: 300;

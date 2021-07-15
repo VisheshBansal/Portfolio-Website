@@ -1,31 +1,32 @@
 <template>
-	<div id="app">
-		<div class="home">
+  <div id="app">
+    <div class="home">
       <div>
-      <button class="scroll-top" v-on:click="scrollToTop">
-        <i id="chevron" class="fas fa-chevron-up fa-lg"></i>
-      </button></div>
-			<Navbar></Navbar>
-			<HorizontalDivider></HorizontalDivider>
-			<Hero></Hero>
+        <button class="scroll-top" v-on:click="scrollToTop">
+          <i id="chevron" class="fas fa-chevron-up fa-lg"></i>
+        </button>
+      </div>
+      <Navbar></Navbar>
+      <HorizontalDivider></HorizontalDivider>
+      <Hero></Hero>
       <HorizontalDivider></HorizontalDivider>
       <Code></Code>
       <HorizontalDivider></HorizontalDivider>
-			<h1 class="art">Design</h1>
+      <h1 class="art">Design</h1>
 
-			<div class="art-container">
-				<Art
-					v-for="project in projects"
-					:project="project"
-					:key="project"
-				></Art>
-			</div>
-			<HorizontalDivider></HorizontalDivider>
-			<ColophonMusic></ColophonMusic>
-			<HorizontalDivider></HorizontalDivider>
-			<Footer></Footer>
-		</div>
-	</div>
+      <div class="art-container">
+        <Art
+            v-for="project in projects"
+            :project="project"
+            :key="project"
+        ></Art>
+      </div>
+      <HorizontalDivider></HorizontalDivider>
+      <ColophonMusic></ColophonMusic>
+      <HorizontalDivider></HorizontalDivider>
+      <Footer></Footer>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -38,52 +39,52 @@ import ColophonMusic from "./components/ColophonMusic.vue";
 import Footer from "./components/Footer.vue";
 
 export default {
-	name: "App",
-	components: {
-		Navbar,
-		HorizontalDivider,
-		Hero,
-		Art,
-		Code,
-		ColophonMusic,
-		Footer,
-	},
-	data() {
-		return {
-			projects: null,
-		};
-	},
-	mounted() {
-		// This will break one day
-		// TODO: Use own API key
-		const url =
-			"https://www.behance.net/v2/users/visheshbansal/projects?client_id=ZLBxK9rEfHwJf9K0rmseNr2fS2gS2HJW";
-		$.ajax({
-			url: url,
-			type: "get",
-			data: { projects: {} },
-			dataType: "jsonp",
-		})
-			.done((response) => {
-				let data = [];
-				let res = response.projects;
-				console.log(response);
-				for (let i = 0; i < res.length; i++) {
-					data.push({
-						src: res[i].covers.original,
-						link: res[i].url,
-						name: res[i].name,
-					});
-				}
-				this.projects = data;
-			})
-			.fail((error) => {
-				console.error(error);
-			});
-	},
-  methods:{
+  name: "App",
+  components: {
+    Navbar,
+    HorizontalDivider,
+    Hero,
+    Art,
+    Code,
+    ColophonMusic,
+    Footer,
+  },
+  data() {
+    return {
+      projects: null,
+    };
+  },
+  mounted() {
+    // This will break one day
+    // TODO: Use own API key
+    const url =
+        "https://www.behance.net/v2/users/visheshbansal/projects?client_id=ZLBxK9rEfHwJf9K0rmseNr2fS2gS2HJW";
+    $.ajax({
+      url: url,
+      type: "get",
+      data: {projects: {}},
+      dataType: "jsonp",
+    })
+        .done((response) => {
+          let data = [];
+          let res = response.projects;
+          console.log(response);
+          for (let i = 0; i < res.length; i++) {
+            data.push({
+              src: res[i].covers.original,
+              link: res[i].url,
+              name: res[i].name,
+            });
+          }
+          this.projects = data;
+        })
+        .fail((error) => {
+          console.error(error);
+        });
+  },
+  methods: {
     scrollToTop() {
-      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      window.scrollTo({top: 0, left: 0, behavior: "smooth"});
     },
   }
 };
@@ -91,45 +92,46 @@ export default {
 
 <style>
 * {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html {
-	padding: 0;
-	margin: 0;
+  padding: 0;
+  margin: 0;
 }
 
 body {
-	background-color: #1a202c;
-	font-family: "canada-type-gibson";
+  background-color: #1a202c;
+  font-family: "canada-type-gibson";
 }
 
 ::-webkit-scrollbar {
-	width: 6px;
+  width: 6px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-	background: #2c3649;
+  background: #2c3649;
   border-radius: 0.5rem;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-	background: #1DB954;
+  background: #1DB954;
   border-radius: 0.5rem;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-	background: #1DB994;
+  background: #1DB994;
 }
-.scroll-top{
+
+.scroll-top {
   position: fixed;
- bottom: 15%;
+  bottom: 15%;
   left: 85%;
   background-color: #1DB954;
-  border:none;
+  border: none;
   margin-left: 2rem;
   padding: 10px;
   display: flex;
@@ -139,59 +141,61 @@ body {
   transition: all ease 0.2s;
   z-index: 2;
 }
+
 .scroll-top:hover {
- transform: scale(1.2);
-  transition:0.5s;
-  color:white;
+  transform: scale(1.2);
+  transition: 0.5s;
+  color: white;
 }
 
 .home {
-	max-width: 870px;
-	margin: 2rem auto;
+  max-width: 870px;
+  margin: 2rem auto;
 }
 
 .art-container {
-	display: flex;
-	overflow-x: scroll;
-	/* -ms-overflow-style: none;  */
-	/* scrollbar-width: none; */
-	padding: 10px 0;
-	height: min-content;
+  display: flex;
+  overflow-x: scroll;
+  /* -ms-overflow-style: none;  */
+  /* scrollbar-width: none; */
+  padding: 10px 0;
+  height: min-content;
 }
 
 .art {
-	font-weight: 500;
-	color: white;
-	font-size: 1.8rem;
-	border-bottom: 10px solid #1DB954;
-	line-height: 0.4;
-	width: 40px;
+  font-weight: 500;
+  color: white;
+  font-size: 1.8rem;
+  border-bottom: 10px solid #1DB954;
+  line-height: 0.4;
+  width: 40px;
 }
 
 @media screen and (max-width: 1500px) {
-	.home {
-		margin: 2rem 20rem;
-	}
+  .home {
+    margin: 2rem 20rem;
+  }
 }
 
 @media screen and (max-width: 1380px) {
-	.home {
-		margin: 2rem 15rem;
-	}
+  .home {
+    margin: 2rem 15rem;
+  }
 }
 
 @media screen and (max-width: 936px) {
-	.home {
-		margin: 2rem;
-	}
-  .scroll-top{
+  .home {
+    margin: 2rem;
+  }
+
+  .scroll-top {
     visibility: hidden;
   }
 }
 
 @media screen and (max-width: 320px) {
-	.home {
-		margin: 2rem 1rem;
-	}
+  .home {
+    margin: 2rem 1rem;
+  }
 }
 </style>

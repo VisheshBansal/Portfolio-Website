@@ -1,16 +1,16 @@
 <template>
-	<div class="hero">
-		<div class="image-holder">
-			<img src="https://neenja.netlify.app/assets/Vishesh%20Bansal.png" alt="Image of Vishesh Bansal" />
-		</div>
-		<div class="text">
-			<div class="top-text">
-				<h1>
-					Hi, I'm Vishesh. I'm a developer and designer from Gurgaon.
-				</h1>
-			</div>
-			<div class="bottom-text">
-				<p class="b-margin">
+  <div class="hero">
+    <div class="image-holder">
+      <img src="https://neenja.netlify.app/assets/Vishesh%20Bansal.png" alt="Image of Vishesh Bansal"/>
+    </div>
+    <div class="text">
+      <div class="top-text">
+        <h1>
+          Hi, I'm Vishesh. I'm a developer and designer from Gurgaon.
+        </h1>
+      </div>
+      <div class="bottom-text">
+        <p class="b-margin">
           I'm a sophomore CS student at <a
             target="_blank"
             rel="noopener noreferrer"
@@ -22,22 +22,24 @@
             rel="noopener noreferrer"
             class="green"
             href="https://dpsgurgaon.org"
-        >Delhi Public School, Gurgaon</a> I'm an Cyber Security and Machine Learning Enthusiast with a focus on front-end and
-					back-end in Node.js.
-				</p>
-				<p class="b-margin">
-					I also love digital art. I am learning UI/UX designing
-					using Figma. Other tools which I use are Adobe Photoshop and Illustrator. I am an avid book reader and music listener.
-				</p>
-				<p>
-					My favourite colour
-					is <span class="color">#7CFC06</span>.
-				</p>
+        >Delhi Public School, Gurgaon</a> I'm an Cyber Security and Machine Learning Enthusiast with a focus on
+          front-end and
+          back-end in Node.js.
+        </p>
+        <p class="b-margin">
+          I also love digital art. I am learning UI/UX designing
+          using Figma. Other tools which I use are Adobe Photoshop and Illustrator. I am an avid book reader and music
+          listener.
+        </p>
+        <p>
+          My favourite colour
+          is <span class="color">#7CFC06</span>.
+        </p>
         <br><br>
         <p class="bold fa-bold">
           Check out my Social Profiles:
         </p>
-			</div>
+      </div>
       <ul>
         <a
             href="https://twitter.com/VisheshBansal17"
@@ -70,21 +72,22 @@
           </li>
         </a>
       </ul>
-		</div>
-	</div>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
-	name: "Hero",
+  name: "Hero",
 };
 </script>
 
 <style scoped>
 .color {
-	/* border-bottom: 4px solid #1da7ea; */
-	color: lawngreen;
+  /* border-bottom: 4px solid #1da7ea; */
+  color: lawngreen;
 }
+
 ul {
   margin: 0;
   list-style-type: none;
@@ -120,6 +123,7 @@ li:hover {
 .fa-github {
   color: #fff;
 }
+
 .fa-kaggle {
   color: #fff;
 }
@@ -134,12 +138,13 @@ li:hover {
 
 
 .green {
-	color: #18D26E;
+  color: #18D26E;
   text-decoration: none;
   font-weight: bolder;
   margin: 5px;
   transition: siz;
 }
+
 .green:hover {
   color: lawngreen;
   text-decoration: none;
@@ -149,69 +154,70 @@ li:hover {
 }
 
 img {
-	height: 400px;
-	border-radius: 8px;
+  height: 400px;
+  border-radius: 8px;
 }
 
 .b-margin {
-	margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .image-holder {
-	height: 125px;
+  height: 125px;
 }
 
 .hero {
-	display: flex;
+  display: flex;
 }
+
 .text {
-	height: 400px;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	color: white;
-	margin-left: 2rem;
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+  margin-left: 2rem;
 }
 
 h1,
 p {
-	margin: 0;
+  margin: 0;
 }
 
 h1 {
-	font-weight: 500;
-	font-size: 1.8rem;
+  font-weight: 500;
+  font-size: 1.8rem;
 }
 
 p {
-	font-weight: 300;
-	font-size: 1rem;
-	line-height: 1.3;
-	/* text-align: justify; */
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.3;
+  /* text-align: justify; */
 }
 
 @media screen and (max-width: 1258px) {
-	.hero {
-		flex-direction: column;
-	}
+  .hero {
+    flex-direction: column;
+  }
 
-	img {
-		height: 150px;
-		width: auto;
-		clip-path: circle(60px at center);
-		position: relative;
-		top: -20px;
-		margin: 0;
-	}
+  img {
+    height: 150px;
+    width: auto;
+    clip-path: circle(60px at center);
+    position: relative;
+    top: -20px;
+    margin: 0;
+  }
 
-	.text {
-		margin-left: 0;
-		height: auto;
-	}
+  .text {
+    margin-left: 0;
+    height: auto;
+  }
 
-	h1 {
-		margin-bottom: 1rem;
-		margin-top: 1rem;
-	}
+  h1 {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
 }
 </style>

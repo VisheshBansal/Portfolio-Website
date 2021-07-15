@@ -1,7 +1,7 @@
 {
   "name": "portfolio",
-  "license": "ISC",
-  "author": "Vishesh Bansal",
+  "license": "MIT",
+  "author": "Vishesh Bansal <vishesh.bansal@gmail.com> (https://visheshbansal.ml/)",
   "version": "0.1.0",
   "private": true,
   "scripts": {

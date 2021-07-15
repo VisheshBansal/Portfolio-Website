@@ -1,5 +1,4 @@
 import fetch from "node-fetch";
-import encoding from "encoding";
 
 const API_ENDPOINT =
 	"https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=VisheshBansal&api_key=06371334b3058080bf844f787357d514&format=json";
