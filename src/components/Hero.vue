@@ -38,11 +38,11 @@
             rel="noopener noreferrer"
             class="green"
             href="https://dpsgurgaon.org"
-        >Delhi Public School, Gurgaon</a> I'm an Cyber Security and Machine Learning Enthusiast with experience in
+        >Delhi Public School, Gurgaon</a> I'm a Cyber Security and Machine Learning Enthusiast with experience in
           Frontend Development.
         </p>
         <p class="b-margin">
-          I also love digital art. I am learning UI/UX designing
+          I also love digital art. I am learning <span class="green-text">UI/UX</span> designing
           using Figma. Other tools which I use are Adobe Photoshop and Illustrator. I am an avid book reader and music
           listener.
         </p>
@@ -169,6 +169,9 @@ li:hover {
   transition: siz;
 }
 
+.green-text {
+  color: lawngreen;
+}
 .green:hover {
   color: lawngreen;
   text-decoration: none;
@@ -192,6 +195,7 @@ img {
 
 .hero {
   display: flex;
+  margin-bottom: 12rem;
 }
 
 .text {
@@ -207,7 +211,7 @@ a{
 }
 
 .contact{
-  margin-top:16px;
+  margin-top:2rem;
 }
 .contact-me{
   font-size: 1.1rem;
@@ -253,6 +257,7 @@ p {
 @media screen and (max-width: 1258px) {
   .hero {
     flex-direction: column;
+    margin-bottom: 0rem;
   }
 
   img {
