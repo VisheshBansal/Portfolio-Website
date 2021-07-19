@@ -97,14 +97,23 @@ export default {
 .no-rotate {
   transform: rotate(0deg);
 }
-
 h1 {
+font-weight: 500;
+color: white;
+font-size: 1.8rem;
+border-bottom: 10px solid green;
+line-height: 0.4;
+width: 40px;
+}
+
+h1:hover {
   font-size: 1.8rem;
   font-weight: 500;
   color: white;
-  border-bottom: 10px solid #18D26E;
+  border-bottom: 10px solid #1DB954;
   line-height: 0.4;
   width: 70px;
+  transition: 0.5s;
 }
 
 .row {

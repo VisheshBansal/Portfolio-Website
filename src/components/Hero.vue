@@ -10,7 +10,7 @@
         </h1>
         <h2>
           I'm a
-         <span><vue-typer
+          <span><vue-typer
               :text='["Developer","Designer","ML Enthusiast","CyberSec Enthusiast"]'
               :repeat='Infinity'
               :shuffle='false'
@@ -22,7 +22,7 @@
               erase-style='select-all'
               :erase-on-complete='false'
               caret-animation='blink'
-          ></vue-typer></span> from Gurgaon.
+          ></vue-typer></span> from<br> Gurgaon.
         </h2>
       </div>
       <div class="bottom-text">
@@ -38,9 +38,8 @@
             rel="noopener noreferrer"
             class="green"
             href="https://dpsgurgaon.org"
-        >Delhi Public School, Gurgaon</a> I'm an Cyber Security and Machine Learning Enthusiast with a focus on
-          front-end and
-          back-end in Node.js.
+        >Delhi Public School, Gurgaon</a> I'm an Cyber Security and Machine Learning Enthusiast with experience in
+          Frontend Development.
         </p>
         <p class="b-margin">
           I also love digital art. I am learning UI/UX designing
@@ -52,11 +51,18 @@
           is <span class="color">#7CFC06</span>.
         </p>
         <br><br>
-        <p class="bold fa-bold">
-          Check out my Social Profiles:
+        <p class="bold fa-bold">Check out my Social Profiles:
         </p>
       </div>
+      <br>
       <ul>
+        <a
+            href="https://facebook.com/agentace.50"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+          <li><i class="fab fa-facebook fa-lg"></i></li>
+        </a>
         <a
             href="https://twitter.com/VisheshBansal17"
             target="_blank"
@@ -72,28 +78,31 @@
           <li><i class="fab fa-instagram fa-lg"></i></li>
         </a>
         <a
-            href="https://github.com/VisheshBansal"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-          <li><i class="fab fa-kaggle fa-lg"></i></li>
-        </a>
-        <a
-            href="https://www.behance.net/visheshbansal"
+            href="https://www.linkedin.com/in/bansalvishesh"
             target="_blank"
             rel="noopener noreferrer"
         >
           <li class="last">
-            <i class="fab fa-behance-square fa-lg"></i>
+            <i class="fab fa-linkedin fa-lg"></i>
           </li>
         </a>
       </ul>
+      <div class="contact">
+        <p class="b-margin">
+          Get in touch with me:
+        </p>
+        <a href="mailto:vishesh.bansal@gmail.com">
+        <div class="contact-me">Contact Me</div>
+        </a>
+      </div>
     </div>
+    <br><br><br>
   </div>
 </template>
 
 <script>
-import { VueTyper } from 'vue-typer'
+import {VueTyper} from 'vue-typer'
+
 export default {
   name: "Hero",
   components: {
@@ -132,9 +141,10 @@ li:hover {
   transition: all ease 0.2s;
 }
 
-::v-deep .typed  {
+::v-deep .typed {
   color: lawngreen !important;
 }
+
 ::v-deep .custom.caret {
   background-color: green !important;
 }
@@ -147,22 +157,9 @@ li:hover {
   color: #fff;
 }
 
-.fa-github {
+.fa-facebook {
   color: #fff;
 }
-
-.fa-kaggle {
-  color: #fff;
-}
-
-.fa-envelope {
-  color: #fff;
-}
-
-.fa-behance-square {
-  color: #fff;
-}
-
 
 .green {
   color: #18D26E;
@@ -205,7 +202,28 @@ img {
   color: white;
   margin-left: 2rem;
 }
+a{
+  text-decoration: none;
+}
 
+.contact{
+  margin-top:16px;
+}
+.contact-me{
+  font-size: 1.1rem;
+  font-weight: 500;
+  background-color: #1b405e;
+  color:white;
+  border-radius:8px;
+  text-align: center;
+  padding:10px;
+  vertical-align: center;
+}
+.contact-me:hover{
+  background-color: #18D26E;
+  transform: translateY(-5px);
+  transition: all ease 0.2s;
+}
 h1,
 p {
   margin: 0;
@@ -228,8 +246,8 @@ p {
   /* text-align: justify; */
 }
 
-.changing-text{
-  color: lawngreen;
+.fa-linkedin {
+  color: white;
 }
 
 @media screen and (max-width: 1258px) {
@@ -254,6 +272,15 @@ p {
   h1 {
     margin-bottom: 1rem;
     margin-top: 1rem;
+  }
+
+  li {
+    margin-right: 0.5rem;
+    margin-left: 0.5rem;
+  }
+
+  .contact {
+    margin-top:16px;
   }
 }
 </style>

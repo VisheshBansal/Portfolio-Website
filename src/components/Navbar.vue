@@ -5,20 +5,6 @@
     </div>
     <ul>
       <a
-          href="https://twitter.com/VisheshBansal17"
-          target="_blank"
-          rel="noopener noreferrer"
-      >
-        <li class="first"><i class="fab fa-twitter fa-lg"></i></li>
-      </a>
-      <a
-          href="https://instagram.com/thevisheshbansal"
-          target="_blank"
-          rel="noopener noreferrer"
-      >
-        <li><i class="fab fa-instagram fa-lg"></i></li>
-      </a>
-      <a
           href="https://github.com/VisheshBansal"
           target="_blank"
           rel="noopener noreferrer"
@@ -26,11 +12,18 @@
         <li><i class="fab fa-github fa-lg"></i></li>
       </a>
       <a
-          href="mailto:hi@visheshbansal.ml"
+          href="https://kaggle.com/bansalvishesh"
           target="_blank"
           rel="noopener noreferrer"
       >
-        <li><i class="fas fa-envelope fa-lg"></i></li>
+        <li><i class="fab fa-kaggle fa-lg"></i></li>
+      </a>
+      <a
+          href="https://medium.com/visheshbansal"
+          target="_blank"
+          rel="noopener noreferrer"
+      >
+        <li><i class="fab fa-medium fa-lg"></i></li>
       </a>
       <a
           href="https://www.behance.net/visheshbansal"
@@ -38,7 +31,7 @@
           rel="noopener noreferrer"
       >
         <li>
-          <i class="fab fa-behance-square fa-lg"></i>
+          <i class="fab fa-behance fa-lg"></i>
         </li>
       </a>
       <a
@@ -47,7 +40,7 @@
           rel="noopener noreferrer"
       >
         <li class="last">
-          <i class="fa fa-linkedin-square fa-lg"></i>
+          <i class="fab fa-linkedin fa-lg"></i>
         </li>
       </a>
     </ul>
@@ -78,7 +71,7 @@ nav {
   margin: 0 0 0 0;
   font-size: 1.8rem;
   font-weight: 600;
-  border-bottom: 6px solid #204665;
+  border-bottom: 6px solid green;
   line-height: 0.4;
 }
 
@@ -101,29 +94,28 @@ li {
 }
 
 li:hover {
-  background-color: #15334b;
+  background-color: #18D26E;
   transform: translateY(-5px);
   transition: all ease 0.2s;
 }
 
-.fa-twitter {
-  color: #2bf1ff;
-}
-
-.fa-instagram {
-  color: #c457ff;
+.fa-kaggle {
+  color: #fff;
 }
 
 .fa-github {
-  color: #3ed3a1;
+  color: #fff;
+}
+.fa-linkedin {
+  color: #fff;
 }
 
-.fa-envelope {
-  color: #e3655b;
+.fa-medium {
+  color: #fff;
 }
 
-.fa-behance-square {
-  color: #228cdb;
+.fa-behance {
+  color: #fff;
 }
 
 @media screen and (max-width: 1250px) {

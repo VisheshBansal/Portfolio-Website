@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <cursor-fx color="green" hover="lawngreen"></cursor-fx>
+    <cursor-fx color="lawngreen"></cursor-fx>
     <div class="home">
       <div>
         <button class="scroll-top" v-on:click="scrollToTop">
@@ -104,6 +104,7 @@ html {
 body {
   background-color: #1a202c;
   font-family: "canada-type-gibson";
+  overflow-x:hidden;
 }
 
 ::-webkit-scrollbar {
@@ -124,7 +125,7 @@ body {
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #1DB994;
+  background: lawngreen;
 }
 
 .scroll-top {
@@ -167,10 +168,21 @@ body {
   font-weight: 500;
   color: white;
   font-size: 1.8rem;
-  border-bottom: 10px solid #1DB954;
+  border-bottom: 10px solid green;
   line-height: 0.4;
   width: 40px;
 }
+
+.art:hover {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: white;
+  border-bottom: 10px solid #1DB954;
+  line-height: 0.4;
+  width: 70px;
+  transition: 0.5s;
+}
+
 
 @media screen and (max-width: 1500px) {
   .home {

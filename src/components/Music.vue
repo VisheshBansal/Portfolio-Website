@@ -39,13 +39,22 @@ div {
 }
 
 h1 {
-  font-size: 1.8rem;
-  color: white;
   font-weight: 500;
-  border-bottom: 10px solid #204665;
+  color: white;
+  font-size: 1.8rem;
+  border-bottom: 10px solid green;
   line-height: 0.4;
-  width: 75px;
-  margin-block-start: 0;
+  width: 40px;
+}
+
+h1:hover {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: white;
+  border-bottom: 10px solid #1DB954;
+  line-height: 0.4;
+  width: 70px;
+  transition: 0.5s;
 }
 
 p {
