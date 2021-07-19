@@ -6,8 +6,24 @@
     <div class="text">
       <div class="top-text">
         <h1>
-          Hi, I'm Vishesh. I'm a developer and designer from Gurgaon.
+          Hi, I'm Vishesh! 👋
         </h1>
+        <h2>
+          I'm a
+         <span><vue-typer
+              :text='["Developer","Designer","ML Enthusiast","CyberSec Enthusiast"]'
+              :repeat='Infinity'
+              :shuffle='false'
+              initial-action='typing'
+              :pre-type-delay='70'
+              :type-delay='70'
+              :pre-erase-delay='2000'
+              :erase-delay='250'
+              erase-style='select-all'
+              :erase-on-complete='false'
+              caret-animation='blink'
+          ></vue-typer></span> from Gurgaon.
+        </h2>
       </div>
       <div class="bottom-text">
         <p class="b-margin">
@@ -77,8 +93,12 @@
 </template>
 
 <script>
+import { VueTyper } from 'vue-typer'
 export default {
   name: "Hero",
+  components: {
+    VueTyper
+  }
 };
 </script>
 
@@ -110,6 +130,13 @@ li:hover {
   background-color: #18D26E;
   transform: translateY(-5px);
   transition: all ease 0.2s;
+}
+
+::v-deep .typed  {
+  color: lawngreen !important;
+}
+::v-deep .custom.caret {
+  background-color: green !important;
 }
 
 .fa-twitter {
@@ -189,11 +216,20 @@ h1 {
   font-size: 1.8rem;
 }
 
+h2 {
+  font-weight: 500;
+  font-size: 1.8rem;
+}
+
 p {
   font-weight: 300;
   font-size: 1rem;
   line-height: 1.3;
   /* text-align: justify; */
+}
+
+.changing-text{
+  color: lawngreen;
 }
 
 @media screen and (max-width: 1258px) {

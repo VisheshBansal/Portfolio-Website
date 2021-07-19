@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <cursor-fx color="green" hover="lawngreen"></cursor-fx>
     <div class="home">
       <div>
         <button class="scroll-top" v-on:click="scrollToTop">
