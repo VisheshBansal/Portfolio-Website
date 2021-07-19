@@ -12,6 +12,14 @@
     <div class="wrapper">
       <div class="icon logo">
         <div class="tooltip">
+          TensorFlow
+        </div>
+        <span><img class="fa-tf" src="../assets/img/logos/Tensorflow.svg" height="20"/></span>
+      </div>
+    </div>
+    <div class="wrapper">
+      <div class="icon logo">
+        <div class="tooltip">
           HTML
         </div>
         <span><i class="fab fa-html5 fa-lg"></i></span>
@@ -62,7 +70,7 @@
         <div class="tooltip">
           FastAPI
         </div>
-        <span><i class="fas fa-bolt fa-lg"></i></span>
+        <span><img class="fa-fastapi" src="../assets/img/logos/FastAPI.svg" height="20"/></span>
       </div>
     </div>
 
@@ -94,8 +102,6 @@ h1:hover {
   width: 150px;
   transition: 0.5s;
 }
-
-
 span{
   padding: 20px;
 }
@@ -119,7 +125,6 @@ span{
   display: block;
   height:60px;
   width: 60px;
-  background: ;
   border-radius: 50%;
   position: relative;
   z-index: 2;
