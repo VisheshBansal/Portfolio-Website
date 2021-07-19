@@ -88,11 +88,8 @@
         </a>
       </ul>
       <div class="contact">
-        <p class="b-margin">
-          Get in touch with me:
-        </p>
         <a href="mailto:vishesh.bansal@gmail.com">
-        <div class="contact-me">Contact Me</div>
+        <div class="contact-me">Get In Touch</div>
         </a>
       </div>
     </div>
@@ -216,7 +213,7 @@ a{
 .contact-me{
   font-size: 1.1rem;
   font-weight: 500;
-  background-color: #1b405e;
+  background-color: #18D26E;
   color:white;
   border-radius:8px;
   text-align: center;
@@ -224,7 +221,6 @@ a{
   vertical-align: center;
 }
 .contact-me:hover{
-  background-color: #18D26E;
   transform: translateY(-5px);
   transition: all ease 0.2s;
 }

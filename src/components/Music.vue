@@ -53,7 +53,7 @@ h1:hover {
   color: white;
   border-bottom: 10px solid #1DB954;
   line-height: 0.4;
-  width: 70px;
+  width: 75px;
   transition: 0.5s;
 }
 
