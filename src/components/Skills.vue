@@ -1,6 +1,6 @@
 <template>
   <div class="skill">
-    <h1>Tech Stack</h1>
+    <h1>TechStack</h1>
     <div class="wrapper">
       <div class="icon logo">
         <div class="tooltip">
@@ -31,6 +31,14 @@
           CSS
         </div>
         <span><i class="fab fa-css3 fa-lg"></i></span>
+      </div>
+    </div>
+    <div class="wrapper">
+      <div class="icon logo">
+        <div class="tooltip">
+          Sass
+        </div>
+        <span><i class="fab fa-sass fa-lg"></i></span>
       </div>
     </div>
     <div class="wrapper">
@@ -90,7 +98,7 @@ h1 {
   font-size: 1.8rem;
   border-bottom: 10px solid green;
   line-height: 0.4;
-  width: 135px;
+  width: 80px;
 }
 
 h1:hover {
@@ -99,17 +107,20 @@ h1:hover {
   color: white;
   border-bottom: 10px solid #1DB954;
   line-height: 0.4;
-  width: 150px;
+  width: 130px;
   transition: 0.5s;
 }
-span{
+
+span {
   padding: 20px;
 }
-.wrapper{
+
+.wrapper {
   display: inline-flex;
   vertical-align: center;
 }
-.wrapper .icon{
+
+.wrapper .icon {
   margin: 0 20px;
   text-align: center;
   cursor: pointer;
@@ -121,21 +132,24 @@ span{
   z-index: 2;
   transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
-.wrapper .icon span{
+
+.wrapper .icon span {
   display: block;
-  height:60px;
+  height: 60px;
   width: 60px;
   border-radius: 50%;
   position: relative;
   z-index: 2;
-  box-shadow: 0px 10px 10px rgba(0,0,0,0.1);
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
   transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
-.wrapper .icon span i{
+
+.wrapper .icon span i {
   line-height: 60px;
   font-size: 25px;
 }
-.wrapper .icon .tooltip{
+
+.wrapper .icon .tooltip {
   position: absolute;
   top: 0;
   z-index: 1;
@@ -147,39 +161,49 @@ span{
   border-radius: 25px;
   opacity: 0;
   pointer-events: none;
-  box-shadow: 0px 10px 10px rgba(0,0,0,0.1);
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
   transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
-.wrapper .icon:hover .tooltip{
+
+.wrapper .icon:hover .tooltip {
   top: -70px;
   opacity: 1;
   pointer-events: auto;
 }
-.fa-python{
-  color:#fff;
+
+.fa-python {
+  color: #fff;
 }
-.fa-react{
-  color:#fff;
+
+.fa-react {
+  color: #fff;
 }
-.fa-vuejs{
-  color:#fff;
+
+.fa-sass {
+  color: #fff;
 }
-.fa-node-js{
-  color:#fff;
+
+.fa-vuejs {
+  color: #fff;
 }
-.fa-html5{
-  color:#fff;
+
+.fa-node-js {
+  color: #fff;
 }
-.fa-bolt{
-  color:#fff;
+
+.fa-html5 {
+  color: #fff;
 }
-.fa-css3{
-  color:#fff;
+
+.fa-css3 {
+  color: #fff;
 }
-.fa-js-square{
-  color:#fff;
+
+.fa-js-square {
+  color: #fff;
 }
-.icon .tooltip:before{
+
+.icon .tooltip:before {
   position: absolute;
   content: "";
   height: 15px;
@@ -190,17 +214,19 @@ span{
   transform: translateX(-50%) rotate(45deg);
   transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
-.wrapper .icon:hover span{
+
+.wrapper .icon:hover span {
   color: #fff;
 }
+
 .wrapper .icon:hover span,
-.wrapper .icon:hover .tooltip{
-  text-shadow: 0px -1px 0px rgba(255,255,255,0.4);
+.wrapper .icon:hover .tooltip {
+  text-shadow: 0px -1px 0px rgba(255, 255, 255, 0.4);
 }
 
 .wrapper .logo:hover span,
 .wrapper .logo:hover .tooltip,
-.wrapper .logo:hover .tooltip:before{
+.wrapper .logo:hover .tooltip:before {
   background: #18D26E;
 }
 

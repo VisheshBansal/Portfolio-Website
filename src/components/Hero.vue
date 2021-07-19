@@ -22,7 +22,7 @@
               erase-style='select-all'
               :erase-on-complete='false'
               caret-animation='blink'
-          ></vue-typer></span> from<br> Gurgaon.
+          ></vue-typer></span> from Gurgaon.
         </h2>
       </div>
       <div class="bottom-text">
@@ -88,12 +88,19 @@
         </a>
       </ul>
       <div class="contact">
-        <a href="mailto:vishesh.bansal@gmail.com">
-        <div class="contact-me">Get In Touch</div>
+        <a href="/contact">
+          <div class="contact-me">Contact Me</div>
         </a>
       </div>
+      <br>
+      <p class="center"> View some of my projects <a
+          rel="noopener noreferrer"
+          class="green"
+          href="/projects" style="margin-left:1px;margin-right:1px;"
+      >here</a
+      >.
+      </p>
     </div>
-    <br><br><br>
   </div>
 </template>
 
@@ -169,12 +176,17 @@ li:hover {
 .green-text {
   color: lawngreen;
 }
+
 .green:hover {
   color: lawngreen;
   text-decoration: none;
   font-weight: bolder;
   margin: 5px;
   transition: siz;
+}
+
+.center {
+  text-align: center;
 }
 
 img {
@@ -203,27 +215,31 @@ img {
   color: white;
   margin-left: 2rem;
 }
-a{
+
+a {
   text-decoration: none;
 }
 
-.contact{
-  margin-top:2rem;
+.contact {
+  margin-top: 2rem;
 }
-.contact-me{
+
+.contact-me {
   font-size: 1.1rem;
   font-weight: 500;
   background-color: #18D26E;
-  color:white;
-  border-radius:8px;
+  color: white;
+  border-radius: 8px;
   text-align: center;
-  padding:10px;
+  padding: 10px;
   vertical-align: center;
 }
-.contact-me:hover{
+
+.contact-me:hover {
   transform: translateY(-5px);
   transition: all ease 0.2s;
 }
+
 h1,
 p {
   margin: 0;
@@ -235,8 +251,8 @@ h1 {
 }
 
 h2 {
-  font-weight: 500;
-  font-size: 1.8rem;
+  font-weight: 480;
+  font-size: 1.4rem;
 }
 
 p {
@@ -281,7 +297,7 @@ p {
   }
 
   .contact {
-    margin-top:16px;
+    margin-top: 16px;
   }
 }
 </style>
