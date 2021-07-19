@@ -11,6 +11,8 @@
       <HorizontalDivider></HorizontalDivider>
       <Hero></Hero>
       <HorizontalDivider></HorizontalDivider>
+      <Skills></Skills>
+      <HorizontalDivider></HorizontalDivider>
       <Code></Code>
       <HorizontalDivider></HorizontalDivider>
       <h1 class="art">Design</h1>
@@ -34,6 +36,7 @@
 import Navbar from "./components/Navbar.vue";
 import HorizontalDivider from "./components/HorizontalDivider.vue";
 import Hero from "./components/Hero.vue";
+import Skills from "./components/Skills.vue";
 import Art from "./components/Art.vue";
 import Code from "./components/Code.vue";
 import ColophonMusic from "./components/ColophonMusic.vue";
@@ -45,6 +48,7 @@ export default {
     Navbar,
     HorizontalDivider,
     Hero,
+    Skills,
     Art,
     Code,
     ColophonMusic,
@@ -179,7 +183,7 @@ body {
   color: white;
   border-bottom: 10px solid #1DB954;
   line-height: 0.4;
-  width: 70px;
+  width: 90px;
   transition: 0.5s;
 }
 
