@@ -15,6 +15,10 @@ export default {
 </script>
 
 <style scoped>
+a {
+  text-decoration: none;
+}
+
 .project-card {
   margin-right: 1rem;
   transition: 0.2s ease all;
