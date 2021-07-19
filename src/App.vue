@@ -4,7 +4,7 @@
     <div class="home">
       <div>
         <button class="scroll-top" v-on:click="scrollToTop">
-          <i id="chevron" class="fas fa-chevron-up fa-lg"></i>
+          <i id="scroll-top" class="fas fa-chevron-up fa-lg"></i>
         </button>
       </div>
       <Navbar></Navbar>

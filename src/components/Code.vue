@@ -40,6 +40,11 @@ export default {
           emoji: "⏰",
           link: "https://github.com/GDGVIT/vitty-backend",
         },
+        {
+          title: "Portfolio Website",
+          emoji: "🙋‍♂️",
+          link: "https://visheshbansal.ml/gh/Portfolio-Website",
+        },
       ],
     };
     // eslint-disable-next-line no-unreachable
@@ -97,13 +102,14 @@ export default {
 .no-rotate {
   transform: rotate(0deg);
 }
+
 h1 {
-font-weight: 500;
-color: white;
-font-size: 1.8rem;
-border-bottom: 10px solid green;
-line-height: 0.4;
-width: 40px;
+  font-weight: 500;
+  color: white;
+  font-size: 1.8rem;
+  border-bottom: 10px solid green;
+  line-height: 0.4;
+  width: 40px;
 }
 
 h1:hover {
