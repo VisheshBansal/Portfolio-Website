@@ -23,6 +23,10 @@ export const redirects = {
         title: 'kaggle',
         url: 'https://kaggle.com/bansalvishesh',
     },
+    behance: {
+        title: 'Behance',
+        url: 'https://behance.net/visheshbansal',
+    },
     "arc-sw.js":{
         title: 'Arc Service Worker',
         url:"https://arc.io/arc-sw.js",
