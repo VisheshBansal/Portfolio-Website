@@ -1,6 +1,5 @@
 name = "site-worker"
 type = "webpack"
-account_id = "ca6dbf32f604acf91247340da7f3087d"
 workers_dev = true
 
 [site]
