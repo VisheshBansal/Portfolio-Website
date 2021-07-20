@@ -23,4 +23,8 @@ export const redirects = {
         title: 'kaggle',
         url: 'https://kaggle.com/bansalvishesh',
     },
+    "arc-sw.js":{
+        title: 'Arc Service Worker',
+        url:"https://arc.io/arc-sw.js",
+    },
 };
