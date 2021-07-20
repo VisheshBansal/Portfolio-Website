@@ -1,0 +1,12 @@
+name = "site-worker"
+type = "webpack"
+workers_dev = true
+
+[site]
+bucket = "./out"
+entry-point = "workers-site"
+
+[env.production]
+name = "site-worker-production"
+route = "visheshbansal.ml/*"
+vars = { BASE_URL = "https://visheshbansal.ml/" }
