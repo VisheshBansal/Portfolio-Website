@@ -7,6 +7,7 @@
           <i class="fas fa-external-link-alt fa-lg"></i>
         </div>
       </div>
+      <p> {{ description }}</p>
     </a>
   </div>
 </template>
@@ -17,6 +18,7 @@ export default {
   props: {
     emoji: String,
     title: String,
+    description: String,
     link: String,
   },
 };
@@ -69,6 +71,13 @@ h1 {
   font-weight: 500;
   font-size: 1.8rem;
   transition: all ease 0.3s;
+}
+p {
+  margin:2px;
+  font-weight: 400;
+  font-size: 1rem;
+  transition: all ease 0.3s;
+  padding-bottom: 1.2em;
 }
 
 @media screen and (max-width: 1015px) {

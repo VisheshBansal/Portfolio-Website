@@ -96,7 +96,7 @@
       <p class="center"> View some of my projects <a
           rel="noopener noreferrer"
           class="green"
-          href="/projects" style="margin-left:1px;margin-right:1px;"
+          href="#projects" style="margin-left:1px;margin-right:1px;"
       >here</a
       >.
       </p>
@@ -111,7 +111,7 @@ export default {
   name: "Hero",
   components: {
     VueTyper
-  }
+  },
 };
 </script>
 

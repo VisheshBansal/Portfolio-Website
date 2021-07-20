@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row">
-      <h1>Code</h1>
+      <h1>Projects</h1>
       <div>
         <button v-on:click="expandDiv">
           <i id="chevron" class="fas fa-chevron-down fa-lg"></i>
@@ -14,6 +14,7 @@
           v-for="card in cards"
           :key="card.title"
           :title="card.title"
+          :description="card.description"
           :emoji="card.emoji"
           :link="card.link"
       ></Card>
@@ -33,16 +34,19 @@ export default {
         {
           title: "Notifier",
           emoji: "📢",
+          description: "A bot using JavaScript that sends messages FCM messages via Discord.",
           link: "https://github.com/GDGVIT/Notifier-Bot",
         },
         {
           title: "Vitty",
           emoji: "⏰",
+          description: "Reminds you to for classes, so that you never have to miss one again.",
           link: "https://github.com/GDGVIT/vitty-backend",
         },
         {
           title: "Portfolio Website",
           emoji: "🙋‍♂️",
+          description: "My Portfolio website made in Vue.js",
           link: "https://visheshbansal.ml/gh/Portfolio-Website",
         },
       ],
@@ -118,7 +122,7 @@ h1:hover {
   color: white;
   border-bottom: 10px solid #1DB954;
   line-height: 0.4;
-  width: 70px;
+  width: 100px;
   transition: 0.5s;
 }
 
