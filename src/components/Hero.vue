@@ -88,7 +88,7 @@
         </a>
       </ul>
       <div class="contact">
-        <a href="/contact">
+        <a href="#contact">
           <div class="contact-me">Contact Me</div>
         </a>
       </div>

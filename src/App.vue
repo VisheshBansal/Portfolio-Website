@@ -13,6 +13,7 @@
       <HorizontalDivider></HorizontalDivider>
       <Skills></Skills>
       <HorizontalDivider></HorizontalDivider>
+      <a name="projects"></a>
       <Code></Code>
       <HorizontalDivider></HorizontalDivider>
       <h1 class="art">Design</h1>
@@ -27,9 +28,13 @@
       <HorizontalDivider></HorizontalDivider>
       <ColophonMusic></ColophonMusic>
       <HorizontalDivider></HorizontalDivider>
+      <a name="contact"></a>
+      <Contact></Contact>
+      <HorizontalDivider></HorizontalDivider>
       <Footer></Footer>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -38,6 +43,7 @@ import HorizontalDivider from "./components/HorizontalDivider.vue";
 import Hero from "./components/Hero.vue";
 import Skills from "./components/Skills.vue";
 import Art from "./components/Art.vue";
+import Contact from "./components/Contact.vue";
 import Code from "./components/Code.vue";
 import ColophonMusic from "./components/ColophonMusic.vue";
 import Footer from "./components/Footer.vue";
@@ -47,6 +53,7 @@ export default {
   components: {
     Navbar,
     HorizontalDivider,
+    Contact,
     Hero,
     Skills,
     Art,
