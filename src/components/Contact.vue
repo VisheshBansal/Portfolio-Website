@@ -1,6 +1,7 @@
 <template>
   <div class="contact">
-    <h2>Get in<span class="green-text" style="padding:4px;">Touch</span></h2>
+    <h1>Contact</h1>
+    <p class="touch-para" style="padding-top:16px">Let's Get in <span class="green-text" style="padding:0 2px;">Touch</span>.</p>
     <h4>Primary</h4>
     <div class="wrapper">
       <div class="icon logo">
@@ -99,6 +100,7 @@ h1 {
   border-bottom: 10px solid green;
   line-height: 0.4;
   width: 40px;
+  transition: all ease 0.3s;
 }
 
 h1:hover {
@@ -108,7 +110,7 @@ h1:hover {
   border-bottom: 10px solid #1DB954;
   line-height: 0.4;
   width: 100px;
-  transition: 0.5s;
+  transition: all ease 0.3s;
 }
 
 span {
@@ -130,7 +132,13 @@ h4 {
   margin-top: 1.5rem;
   font-size: 1.2rem;
   font-weight: 500;
-  color: whitesmoke;
+  color: ghostwhite;
+}
+
+.touch-para {
+  color: #fff;
+  font-weight: 500;
+  font-size: 1.4rem;
 }
 
 .green-text {
@@ -225,11 +233,12 @@ a {
   text-align: center;
   padding: 10px;
   vertical-align: center;
+  transition: all ease 0.3s;
 }
 
 .contact-me:hover {
   transform: translateY(-5px);
-  transition: all ease 0.2s;
+  transition: all ease 0.3s;
 }
 
 .icon .tooltip:before {

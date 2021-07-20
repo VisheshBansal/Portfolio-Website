@@ -50,43 +50,7 @@
           My favourite colour
           is <span class="color">#7CFC06</span>.
         </p>
-        <br><br>
-        <p class="bold fa-bold">Check out my Social Profiles:
-        </p>
       </div>
-      <br>
-      <ul>
-        <a
-            href="https://facebook.com/agentace.50"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-          <li><i class="fab fa-facebook fa-lg"></i></li>
-        </a>
-        <a
-            href="https://twitter.com/VisheshBansal17"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-          <li class="first"><i class="fab fa-twitter fa-lg"></i></li>
-        </a>
-        <a
-            href="https://instagram.com/thevisheshbansal"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-          <li><i class="fab fa-instagram fa-lg"></i></li>
-        </a>
-        <a
-            href="https://www.linkedin.com/in/bansalvishesh"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-          <li class="last">
-            <i class="fab fa-linkedin fa-lg"></i>
-          </li>
-        </a>
-      </ul>
       <div class="contact">
         <a href="#contact">
           <div class="contact-me">Contact Me</div>
@@ -204,7 +168,7 @@ img {
 
 .hero {
   display: flex;
-  margin-bottom: 12rem;
+  margin-bottom: 2rem;
 }
 
 .text {
@@ -233,6 +197,7 @@ a {
   text-align: center;
   padding: 10px;
   vertical-align: center;
+  transition: all ease 0.3s;
 }
 
 .contact-me:hover {

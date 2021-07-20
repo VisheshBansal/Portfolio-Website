@@ -114,6 +114,7 @@ h1 {
   border-bottom: 10px solid green;
   line-height: 0.4;
   width: 40px;
+  transition: all ease 0.3s;
 }
 
 h1:hover {
