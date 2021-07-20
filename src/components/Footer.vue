@@ -12,8 +12,8 @@
     <p class="align-center">
       Made with <i class="fa fa-heart" aria-hidden="true"></i> by Vishesh Bansal
     </p>
-    <p class="align-center">
-      <br>Copyright &copy;{{ new Date().getFullYear() }}</p>
+    <p class="align-center-copy">
+      Copyright &copy;{{ new Date().getFullYear() }}</p>
 
   </div>
 </template>
@@ -61,8 +61,14 @@ p {
 }
 
 .align-center {
-  padding: 1.5em;
-  font-size: 1.1em;
+  padding: 0 1.3em;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.align-center-copy {
+  padding: 0em 1em;
+  font-size: 0.8rem;
   text-align: center;
 }
 

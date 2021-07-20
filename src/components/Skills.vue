@@ -1,6 +1,7 @@
 <template>
   <div class="skill">
     <h1>TechStack</h1>
+    <div class="items">
     <div class="wrapper">
       <div class="icon logo">
         <div class="tooltip">
@@ -81,7 +82,7 @@
         <span><img class="fa-fastapi" src="../assets/img/logos/FastAPI.svg" height="20"/></span>
       </div>
     </div>
-
+    </div>
   </div>
 </template>
 
@@ -135,9 +136,13 @@ span {
 }
 
 .wrapper .icon span {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 60px;
   width: 60px;
+  margin-bottom: 1em;
+  background-color: #1D2430;
   border-radius: 50%;
   position: relative;
   z-index: 2;
@@ -222,7 +227,7 @@ span {
 
 .wrapper .icon:hover span,
 .wrapper .icon:hover .tooltip {
-  text-shadow: 0px -1px 0px rgba(255, 255, 255, 0.4);
+  text-shadow: 0px -1px 0px rgba(255, 255, 255, 0.5);
 }
 
 .wrapper .logo:hover span,
@@ -230,5 +235,16 @@ span {
 .wrapper .logo:hover .tooltip:before {
   background: #18D26E;
 }
-
+.items {
+  margin: auto 0;
+  align-content: center !important;
+  justify-content: center;
+}
+@media screen and (max-width: 530px) {
+  .items {
+    width: 100%;
+    justify-content: center;
+    align-content: center;
+  }
+}
 </style>

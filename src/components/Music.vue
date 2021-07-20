@@ -69,6 +69,7 @@ ul {
   color: white;
   margin-block-start: 0;
   padding-inline-start: 20px;
+  margin-left: 10px;
   list-style-type: hiragana;
   margin-block-end: 0;
 }

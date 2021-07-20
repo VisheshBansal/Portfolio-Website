@@ -106,6 +106,7 @@ li:hover {
 .fa-github {
   color: #fff;
 }
+
 .fa-linkedin {
   color: #fff;
 }
@@ -137,7 +138,7 @@ li:hover {
   }
 }
 
-@media screen and (max-width: 530px) {
+@media screen and (max-width: 570px) {
   ul {
     width: 100%;
     justify-content: space-between;

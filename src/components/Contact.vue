@@ -165,6 +165,7 @@ h4 {
   border-radius: 50%;
   position: relative;
   z-index: 2;
+  background-color: #1D2430;
   box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
   transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
@@ -259,7 +260,7 @@ a {
 
 .wrapper .icon:hover span,
 .wrapper .icon:hover .tooltip {
-  text-shadow: 0px -1px 0px rgba(255, 255, 255, 0.4);
+  text-shadow: 0px -1px 0px rgba(255, 255, 255, 0.5);
 }
 
 .wrapper .logo:hover span,
