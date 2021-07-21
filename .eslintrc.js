@@ -15,5 +15,6 @@ module.exports = {
     rules: {
         "vue/valid-v-for": 0,
         "no-undef": 0,
+        "no-console": "off",
     },
 };

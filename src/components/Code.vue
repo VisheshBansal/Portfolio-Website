@@ -83,9 +83,9 @@ export default {
   overflow: hidden;
 }
 
-@media screen and (max-width: 1015px) {
+@media screen and (max-width: 580px) {
   .cards {
-    height: 275px;
+    height: 315px;
   }
 }
 
@@ -105,6 +105,18 @@ export default {
 
 .no-rotate {
   transform: rotate(0deg);
+}
+
+@media screen and (min-width: 370px) {
+  .cards {
+    height: 302px;
+  }
+}
+
+@media screen and (min-width: 900px) and (max-width: 1040px) {
+  .cards {
+    height: 370px;
+  }
 }
 
 h1 {
