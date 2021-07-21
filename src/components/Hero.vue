@@ -1,7 +1,7 @@
 <template>
   <div class="hero">
     <div class="image-holder">
-      <img src="../../public/og-image.png" alt="Image of Vishesh Bansal"/>
+      <img src="../assets/me.png" alt="Image of Vishesh Bansal"/>
     </div>
     <div class="text">
       <div class="top-text">
