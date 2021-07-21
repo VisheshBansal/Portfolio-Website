@@ -123,7 +123,7 @@ span {
 }
 
 .wrapper .icon {
-  margin: 0 20px;
+  margin: 0 10px;
   text-align: center;
   cursor: pointer;
   display: flex;

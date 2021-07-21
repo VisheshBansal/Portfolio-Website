@@ -146,7 +146,7 @@ h4 {
 }
 
 .wrapper .icon {
-  margin: 0 20px;
+  margin: 0 10px;
   text-align: center;
   cursor: pointer;
   display: flex;
@@ -165,6 +165,7 @@ h4 {
   border-radius: 50%;
   position: relative;
   z-index: 2;
+  margin-bottom:1em;
   background-color: #1D2430;
   box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
   transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
