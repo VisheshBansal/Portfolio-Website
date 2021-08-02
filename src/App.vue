@@ -42,6 +42,7 @@ import Navbar from "./components/Navbar.vue";
 import HorizontalDivider from "./components/HorizontalDivider.vue";
 import Hero from "./components/Hero.vue";
 import Skills from "./components/Skills.vue";
+import Education from "./components/Education.vue";
 import Art from "./components/Art.vue";
 import Contact from "./components/Contact.vue";
 import Code from "./components/Code.vue";
@@ -56,6 +57,7 @@ export default {
     Contact,
     Hero,
     Skills,
+    Education,
     Art,
     Code,
     ColophonMusic,
