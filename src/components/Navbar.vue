@@ -19,7 +19,7 @@
         <li><i class="fab fa-kaggle fa-lg"></i></li>
       </a>
       <a
-          href="https://medium.com/visheshbansal"
+          href="https://medium.com/@visheshbansal"
           target="_blank"
           rel="noopener noreferrer"
       >

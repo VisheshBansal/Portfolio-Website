@@ -11,7 +11,7 @@
         <h2>
           I'm a
           <span><vue-typer
-              :text='["Developer","Designer","ML Enthusiast","CyberSec Enthusiast"]'
+              :text='["Designer","Developer","ML Enthusiast","CyberSec Enthusiast"]'
               :repeat='Infinity'
               :shuffle='false'
               initial-action='typing'
@@ -22,7 +22,8 @@
               erase-style='select-all'
               :erase-on-complete='false'
               caret-animation='blink'
-          ></vue-typer></span> from Gurgaon.
+          ></vue-typer></span>
+          from <br />Gurgaon.
         </h2>
       </div>
       <div class="bottom-text">
@@ -178,6 +179,7 @@ img {
   justify-content: space-between;
   color: white;
   margin-left: 2rem;
+  margin-bottom: 4rem;
 }
 
 a {
@@ -249,6 +251,7 @@ p {
   .text {
     margin-left: 0;
     height: auto;
+    margin-bottom: 0.5rem;
   }
 
   h1 {

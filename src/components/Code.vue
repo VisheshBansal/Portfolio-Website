@@ -165,4 +165,9 @@ svg {
 .row button:focus {
   outline: none;
 }
+@media screen and (min-width: 200px) and (max-width: 355px) {
+  .cards {
+    height: 320px;
+  }
+}
 </style>
