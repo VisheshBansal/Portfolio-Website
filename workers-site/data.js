@@ -1,7 +1,7 @@
 export const redirects = {
     resume: {
         title: 'Resume',
-        url: 'https://drive.google.com/file/d/1SBNvfonNi4_GakRWESgQ28erPBlGEHPI/view?usp=sharing',
+        url: 'https://drive.google.com/file/d/1V25rHeFhoW1z8kEf4_qxwI8sxW36gO7j/view?usp=sharing',
     },
     twitter: {
         title: 'Twitter',
@@ -26,6 +26,10 @@ export const redirects = {
     behance: {
         title: 'Behance',
         url: 'https://behance.net/visheshbansal',
+    },
+        dribbble: {
+        title: 'Dribbble',
+        url: 'https://dribbble.com/visheshbansal',
     },
     "arc-sw.js":{
         title: 'Arc Service Worker',
