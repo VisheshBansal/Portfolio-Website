@@ -1,6 +1,6 @@
 <template>
   <div class="skill">
-    <h1>TechStack</h1>
+    <h2>TechStack</h2>
     <div class="items">
     <div class="wrapper">
       <div class="icon logo">
@@ -93,7 +93,7 @@ export default {
 </script>
 
 <style scoped>
-h1 {
+h2 {
   font-weight: 500;
   color: white;
   font-size: 1.8rem;
@@ -103,7 +103,7 @@ h1 {
   transition: all ease 0.3s;
 }
 
-h1:hover {
+h2:hover {
   font-size: 1.8rem;
   font-weight: 500;
   color: white;

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row">
-      <h1>Projects</h1>
+      <h2>Projects</h2>
       <div>
         <button v-on:click="expandDiv">
           <i id="chevron" class="fas fa-chevron-down fa-lg"></i>
@@ -119,7 +119,7 @@ export default {
   }
 }
 
-h1 {
+h2 {
   font-weight: 500;
   color: white;
   font-size: 1.8rem;
@@ -129,7 +129,7 @@ h1 {
   transition: all ease 0.3s;
 }
 
-h1:hover {
+h2:hover {
   font-size: 1.8rem;
   font-weight: 500;
   color: white;

@@ -2,7 +2,7 @@
   <div class="project-card">
     <a :href="project.link" target="_blank" rel="noopener noreferrer">
       <img :src="project.src" alt="behance project"/>
-      <h1 class="title">{{ project.name }}</h1>
+      <h3 class="title">{{ project.name }}</h3>
     </a>
   </div>
 </template>

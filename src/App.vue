@@ -13,10 +13,12 @@
       <HorizontalDivider></HorizontalDivider>
       <Skills></Skills>
       <HorizontalDivider></HorizontalDivider>
+      <Experience></Experience>
+      <HorizontalDivider></HorizontalDivider>
       <a name="projects"></a>
       <Code></Code>
       <HorizontalDivider></HorizontalDivider>
-      <h1 class="art">Design</h1>
+      <h2 class="art">Design</h2>
 
       <div class="art-container">
         <Art
@@ -47,6 +49,7 @@ import Contact from "./components/Contact.vue";
 import Code from "./components/Code.vue";
 import ColophonMusic from "./components/ColophonMusic.vue";
 import Footer from "./components/Footer.vue";
+import Experience from "./components/Experience";
 
 export default {
   name: "App",
@@ -55,6 +58,7 @@ export default {
     HorizontalDivider,
     Contact,
     Hero,
+    Experience,
     Skills,
     Art,
     Code,

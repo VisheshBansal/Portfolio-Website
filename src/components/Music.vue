@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Music</h1>
+    <h2>Music</h2>
     <p>My most recently played tracks on Spotify are:</p>
     <ul>
       <li>
@@ -38,7 +38,7 @@ div {
   width: 100%;
 }
 
-h1 {
+h2 {
   font-weight: 500;
   color: white;
   font-size: 1.8rem;
@@ -48,7 +48,7 @@ h1 {
   transition: all ease 0.3s;
 }
 
-h1:hover {
+h2:hover {
   font-size: 1.8rem;
   font-weight: 500;
   color: white;

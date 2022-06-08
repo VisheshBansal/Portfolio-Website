@@ -1,6 +1,6 @@
 <template>
   <div class="contact">
-    <h1>Contact</h1>
+    <h2>Contact</h2>
     <p class="touch-para" style="padding-top:16px">Let's Get in <span class="green-text" style="padding:0 2px;">Touch</span>.</p>
     <h4>Primary</h4>
     <div class="wrapper">
@@ -93,7 +93,7 @@ export default {
 </script>
 
 <style scoped>
-h1 {
+h2 {
   font-weight: 500;
   color: white;
   font-size: 1.8rem;
@@ -103,7 +103,7 @@ h1 {
   transition: all ease 0.3s;
 }
 
-h1:hover {
+h2:hover {
   font-size: 1.8rem;
   font-weight: 500;
   color: white;

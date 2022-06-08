@@ -5,10 +5,10 @@
     </div>
     <div class="text">
       <div class="top-text">
-        <h1>
-          Hi, I'm Vishesh! 👋
-        </h1>
         <h2>
+          Hi, I'm Vishesh! 👋
+        </h2>
+        <h3>
           I'm a
           <span><vue-typer
               :text='["Designer","Developer","ML Enthusiast","CyberSec Enthusiast"]'
@@ -24,11 +24,11 @@
               caret-animation='blink'
           ></vue-typer></span>
           from <br />Gurgaon.
-        </h2>
+        </h3>
       </div>
       <div class="bottom-text">
         <p class="b-margin">
-          I'm a sophomore CS student at <a
+          I'm a pre-final year CS student at <a
             target="_blank"
             rel="noopener noreferrer"
             class="green"
@@ -39,11 +39,10 @@
             rel="noopener noreferrer"
             class="green"
             href="https://dpsgurgaon.org"
-        >Delhi Public School, Gurgaon</a> I'm a Cyber Security and Machine Learning Enthusiast with experience in
-          Frontend Development.
+        >Delhi Public School, Gurgaon</a>. I'm a Cyber Security and Machine Learning Engineer, also having experience with Frontend Development.
         </p>
         <p class="b-margin">
-          I also love digital art. I am learning <span class="green-text">UI/UX</span> designing
+          I also love digital art. I have prior experience <span class="green-text">UI/UX</span> designing
           using Figma. Other tools which I use are Adobe Photoshop and Illustrator. I am an avid book reader and music
           listener.
         </p>
@@ -207,17 +206,17 @@ a {
   transition: all ease 0.2s;
 }
 
-h1,
+h2,
 p {
   margin: 0;
 }
 
-h1 {
+h2 {
   font-weight: 500;
   font-size: 1.8rem;
 }
 
-h2 {
+h3 {
   font-weight: 480;
   font-size: 1.4rem;
 }
@@ -254,7 +253,7 @@ p {
     margin-bottom: 0.5rem;
   }
 
-  h1 {
+  h2 {
     margin-bottom: 1rem;
     margin-top: 1rem;
   }
