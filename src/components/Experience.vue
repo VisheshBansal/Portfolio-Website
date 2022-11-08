@@ -7,24 +7,24 @@
       </div>
       <ul>
         <br><br><br>
-<!--        <li>-->
-<!--          <div class="content">-->
-<!--            <a href="https://getonecard.app" target="_blank">-->
-<!--              <h3>FPL Technologies</h3>-->
-<!--              <h5>Security Engineer Intern</h5>-->
-<!--              <div class="grey">June 2022 - Present</div>-->
-<!--              <br>-->
-<!--              <div>-->
-<!--                - A fintech startup and parent company of the famous-->
-<!--                <strong>OneCard</strong> and <strong>OneScore</strong> app, re-imagining credit and payments from first-->
-<!--                principles!-->
-<!--                <br><br>-->
-<!--                - Currently working as a part of the Engineering Team.-->
-<!--              </div>-->
+        <li>
+          <div class="content">
+            <a href="https://getonecard.app" target="_blank">
+              <h3>FPL Technologies</h3>
+              <h5>Security Engineer Intern</h5>
+              <div class="grey">June 2022 - Present</div>
+              <br>
+              <div>
+                - A fintech startup and parent company of the famous
+                <strong>OneCard</strong> and <strong>OneScore</strong> app, re-imagining credit and payments from first
+                principles!
+                <br><br>
+                - Currently working as a part of the Engineering Team.
+              </div>
 
-<!--            </a>-->
-<!--          </div>-->
-<!--        </li>-->
+            </a>
+          </div>
+        </li>
         <li>
           <div class="content">
             <a href="https://cloudsek.com" target="_blank">
