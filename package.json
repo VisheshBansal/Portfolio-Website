@@ -1,37 +1,37 @@
 {
-  "name": "portfolio",
-  "license": "MIT",
-  "author": "Vishesh Bansal <vishesh.bansal@gmail.com> (https://visheshbansal.dev/)",
-  "version": "1.22.10",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "start": "npm run serve"
-  },
-  "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^5.14.0",
-    "@luxdamore/vue-cursor-fx": "^1.6.2",
-    "aos": "^3.0.0-beta.6",
-    "encoding": "^0.1.13",
-    "eslint": "^7.7.0",
-    "eslint-plugin-vue": "^6.2.2",
-    "node-fetch": "^2.6.0",
-    "register-service-worker": "^1.7.1",
-    "vue": "^2.6.11",
-    "vue-moment": "^4.1.0",
-    "vue-router": "^4.0.10",
-    "vue-scrollto": "^2.18.2",
-    "vue-typer": "^1.2.0",
-    "vuejs-paginate": "^2.1.0",
-    "wrangler": "^2.13.0"
-  },
-  "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.14.0",
-    "@vue/cli-plugin-eslint": "^3.1.1",
-    "@vue/cli-plugin-pwa": "^4.4.6",
-    "@vue/cli-plugin-router": "^4.5.2",
-    "@vue/cli-service": "^3.12.1",
-    "vue-template-compiler": "^2.6.11"
-  }
+    "name": "portfolio",
+    "license": "MIT",
+    "author": "Vishesh Bansal <vishesh.bansal@gmail.com> (https://visheshbansal.dev/)",
+    "version": "1.22.10",
+    "private": true,
+    "scripts": {
+        "serve": "vue-cli-service --openssl-legacy-provider serve",
+        "build": "vue-cli-service --openssl-legacy-provider build",
+        "start": "npm run serve"
+    },
+    "dependencies": {
+        "@fortawesome/free-solid-svg-icons": "^5.14.0",
+        "@luxdamore/vue-cursor-fx": "^1.6.2",
+        "aos": "^3.0.0-beta.6",
+        "encoding": "^0.1.13",
+        "eslint": "^7.7.0",
+        "eslint-plugin-vue": "^6.2.2",
+        "node-fetch": "^2.6.0",
+        "register-service-worker": "^1.7.1",
+        "vue": "^2.6.11",
+        "vue-moment": "^4.1.0",
+        "vue-router": "^4.0.10",
+        "vue-scrollto": "^2.18.2",
+        "vue-typer": "^1.2.0",
+        "vuejs-paginate": "^2.1.0",
+        "wrangler": "^2.13.0"
+    },
+    "devDependencies": {
+        "@fortawesome/fontawesome-free": "^5.14.0",
+        "@vue/cli-plugin-eslint": "^3.1.1",
+        "@vue/cli-plugin-pwa": "^4.4.6",
+        "@vue/cli-plugin-router": "^4.5.2",
+        "@vue/cli-service": "^3.12.1",
+        "vue-template-compiler": "^2.6.11"
+    }
 }

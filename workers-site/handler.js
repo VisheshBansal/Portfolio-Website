@@ -1,4 +1,4 @@
-import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
+import { getAssetFromKV, serveSinglePageApp} from '@cloudflare/kv-asset-handler';
 import { redirects } from './data.js';
 
 const GH_URL = `https://github.com/VisheshBansal`;
@@ -14,24 +14,7 @@ async function getPageFromKV(event) {
         return await getAssetFromKV(event, options);
         //on error try appending html
     } catch (e) {
-        try {
-            const options = {
-                mapRequestToAsset: (req) =>
-                    new Request(`${new URL(req.url)}.html`, req),
-            };
-            const page = await getAssetFromKV(event, options);
-            return new Response(page.body, page);
-            //on error return 404
-        } catch (e) {
-            let notFoundResponse = await getAssetFromKV(event, {
-                mapRequestToAsset: (req) =>
-                    new Request(`${new URL(req.url).origin}/404.html`, req),
-            });
-            return new Response(notFoundResponse.body, {
-                ...notFoundResponse,
-                status: 404,
-            });
-        }
+        return await getAssetFromKV(event, { mapRequestToAsset: serveSinglePageApp })
         // return new Response(e.message || e.toString(), { status: 500 });
     }
 }

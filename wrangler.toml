@@ -1,10 +1,11 @@
 name = "site-worker"
 type = "webpack"
 workers_dev = true
+compatibility_date = "2023-04-02"
+main = "workers-site/index.js"
 
 [site]
 bucket = "./dist"
-entry-point = "workers-site"
 
 [env.production]
 name = "site-worker-production"
