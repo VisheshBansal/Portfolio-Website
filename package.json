@@ -1,8 +1,8 @@
 {
   "name": "portfolio",
   "license": "MIT",
-  "author": "Vishesh Bansal <vishesh.bansal@gmail.com> (https://visheshbansal.ml/)",
-  "version": "0.5.0",
+  "author": "Vishesh Bansal <vishesh.bansal@gmail.com> (https://visheshbansal.dev/)",
+  "version": "1.22.10",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -26,7 +26,6 @@
     "vuejs-paginate": "^2.1.0"
   },
   "devDependencies": {
-    "@cloudflare/wrangler": "^1.18.0",
     "@fortawesome/fontawesome-free": "^5.14.0",
     "@vue/cli-plugin-eslint": "^3.1.1",
     "@vue/cli-plugin-pwa": "^4.4.6",
