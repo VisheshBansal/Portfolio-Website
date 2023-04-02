@@ -36,7 +36,7 @@
           GitHub
         </div>
         <span><a
-            href="https://visheshbansal.ml/gh"
+            href="https://visheshbansal.dev/gh"
             target="_blank"
             rel="noopener noreferrer"
         ><i class="fab fa-github fa-lg"></i></a></span>
@@ -48,7 +48,7 @@
           Instagram
         </div>
         <span><a
-            href="https://visheshbansal.ml/instagram"
+            href="https://visheshbansal.dev/instagram"
             target="_blank"
             rel="noopener noreferrer"
         ><i class="fab fa-instagram fa-lg"></i></a></span>
@@ -60,7 +60,7 @@
           Twitter
         </div>
         <span><a
-            href="https://visheshbansal.ml/twitter"
+            href="https://visheshbansal.dev/twitter"
             target="_blank"
             rel="noopener noreferrer"
         ><i class="fab fa-twitter fa-lg"></i></a></span>
@@ -72,14 +72,14 @@
           LinkedIn
         </div>
         <span><a
-            href="https://visheshbansal.ml/linkedin"
+            href="https://visheshbansal.dev/linkedin"
             target="_blank"
             rel="noopener noreferrer"
         ><i class="fab fa-linkedin fa-lg"></i></a></span>
       </div>
     </div>
     <div style="margin-top:1.2rem;">
-      <a href="https://visheshbansal.ml/resume">
+      <a href="https://visheshbansal.dev/resume">
         <div class="contact-me">Download Resume</div>
       </a>
     </div>

@@ -47,7 +47,7 @@ export default {
           title: "Portfolio Website",
           emoji: "🙋‍♂️",
           description: "My Portfolio website made in Vue.js",
-          link: "https://visheshbansal.ml/gh/Portfolio-Website",
+          link: "https://visheshbansal.dev/gh/Portfolio-Website",
         },
       ],
     };

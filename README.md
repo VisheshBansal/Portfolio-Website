@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://visheshbansal.ml">
+<a href="https://visheshbansal.dev">
 	<img src="https://i.ibb.co/KxrdfnF/vishesh-white.png" width="300" alt="Vishesh Bansal"/>
 </a>
 	<h1 align="center"> Portfolio Website </h1>
