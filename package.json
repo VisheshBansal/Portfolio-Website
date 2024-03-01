@@ -24,7 +24,7 @@
         "vue-scrollto": "^2.18.2",
         "vue-typer": "^1.2.0",
         "vuejs-paginate": "^2.1.0",
-        "wrangler": "^2.13.0"
+        "wrangler": "^2.20.2"
     },
     "devDependencies": {
         "@fortawesome/fontawesome-free": "^5.14.0",
