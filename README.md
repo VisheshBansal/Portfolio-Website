@@ -9,15 +9,13 @@
 > Portfolio Website for Vishesh Bansal built in Vue.js
 
 ## Features
-- [X] Feature 1
-- [X] Feature 2
-- [ ] Feature 3
+- [X] Deployed using cloudflare workers
+- [X] Interacts with Last.FMs API
 
 <br>
 
 ## Dependencies
-- <dependency>
-- <dependency>
+- Last FM API key
 
 
 ## Running
