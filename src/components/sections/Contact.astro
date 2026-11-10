@@ -91,15 +91,8 @@ const pitchPunchline = pitchSentences.at(-1) ?? contactPitch;
             </p>
           </div>
 
-          <form
-            class="req"
-            action={`mailto:${person.email}`}
-            method="get"
-            aria-labelledby="req-title"
-            data-form
-            data-card
-            data-email={person.email}
-          >
+          {/* The submit handler opens the mail app; a mailto: action would be flagged as insecure on HTTPS. */}
+          <form class="req" method="dialog" aria-labelledby="req-title" data-form data-card data-email={person.email}>
             <span class="req__scan" aria-hidden="true">
               <span class="req__scanline" data-scan></span>
             </span>
