@@ -21,7 +21,6 @@ const SHORT_LINKS = new Map<string, string>([
   ['kaggle', 'https://kaggle.com/bansalvishesh'],
   ['behance', 'https://behance.net/visheshbansal'],
   ['dribbble', 'https://dribbble.com/visheshbansal'],
-  ['arc-sw.js', 'https://arc.io/arc-sw.js'],
 ]);
 
 const GITHUB = 'https://github.com/VisheshBansal';
