@@ -1,0 +1,133 @@
+---
+import { headerLinks } from '../../data/navigation';
+---
+
+<header class="nav" data-nav>
+  <a href="#top" class="nav__mark" data-intro aria-label="VB, back to top">
+    VB
+  </a>
+  <nav class="nav__links mono" aria-label="Sections" data-intro>
+    {headerLinks.map((link) => (
+      <a href={link.href}>{link.label}</a>
+    ))}
+  </nav>
+  <div class="nav__end" data-intro>
+    <button type="button" class="nav__theme mono" data-theme-toggle aria-label="Colour theme: auto">
+      <span class="nav__theme-dot" aria-hidden="true"></span>
+      <span data-theme-label>Auto</span>
+    </button>
+    <a href="#contact" class="nav__cta mono">
+      Request access
+    </a>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(14px, 2.4vh, 24px) var(--gutter);
+    color: #fff;
+    mix-blend-mode: difference;
+    pointer-events: none;
+  }
+  .nav > * {
+    pointer-events: auto;
+  }
+  .nav__mark {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+  .nav__links {
+    display: flex;
+    gap: clamp(16px, 2.2vw, 38px);
+  }
+  .nav__links a,
+  .nav__cta {
+    position: relative;
+  }
+  .nav__links a::after,
+  .nav__cta::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -5px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s var(--ease-out);
+  }
+  .nav__links a:hover::after,
+  .nav__cta:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  .nav__end {
+    display: flex;
+    align-items: center;
+    gap: clamp(14px, 2vw, 28px);
+  }
+  .nav__theme {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav__theme-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+  }
+  :global([data-theme='light']) .nav__theme-dot {
+    background: transparent;
+  }
+  :global([data-theme='dark']) .nav__theme-dot {
+    background: currentColor;
+  }
+  @media (max-width: 860px) {
+    .nav__links {
+      display: none;
+    }
+  }
+  @media (max-width: 420px) {
+    .nav__cta {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, reducedMotion } from '../../lib/motion';
+  import { query, queryAll } from '../../lib/dom';
+  import { onReveal } from '../../lib/reveal';
+  import { THEME_PREFERENCES, getThemePreference, setThemePreference } from '../../lib/theme';
+
+  const ENTRANCE_DELAY_S = 0.9;
+  const toggle = query<HTMLButtonElement>('[data-theme-toggle]');
+  const label = query('[data-theme-label]', toggle);
+
+  const render = () => {
+    const preference = getThemePreference();
+    label.textContent = preference.charAt(0).toUpperCase() + preference.slice(1);
+    toggle.setAttribute('aria-label', `Colour theme: ${preference}`);
+  };
+  toggle.addEventListener('click', () => {
+    const next = THEME_PREFERENCES[(THEME_PREFERENCES.indexOf(getThemePreference()) + 1) % THEME_PREFERENCES.length];
+    setThemePreference(next ?? 'auto');
+    render();
+  });
+  render();
+
+  onReveal(() => {
+    const items = queryAll('[data-nav] [data-intro]');
+    gsap.set(items, { visibility: 'visible' });
+    if (!reducedMotion) gsap.from(items, { autoAlpha: 0, y: -10, duration: 1.1, stagger: 0.08, delay: ENTRANCE_DELAY_S, ease: 'expo.out' });
+  });
+</script>

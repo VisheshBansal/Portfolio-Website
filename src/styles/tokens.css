@@ -1,0 +1,88 @@
+/* Semantic tokens. Light = fog from the hero photo. Dark = the bay at night.
+   Follows the system by default; html[data-theme] overrides. */
+:root {
+  color-scheme: light;
+  --bg: #eaf0f8;
+  --bg-2: #dce4ee;
+  --surface: #f7f9fc;
+  --fog-wisp: #ffffff;
+  --fg: #14202b;
+  --fg-2: #3a4856;
+  --muted: #556372;
+  --rule: rgb(20 32 43 / 0.14);
+
+  /* The bridge: International Orange */
+  --accent: #c0362c;
+  --accent-hot: #e2492f;
+  --accent-soft: #f4c9bb;
+
+  /* Contrast blocks flip with the theme: night in light mode, fog in dark mode */
+  --contrast-bg: #0e151c;
+  --contrast-fg: #edf2f7;
+  --contrast-muted: #8a99a8;
+  /* Derived, so they follow the theme without overrides */
+  --contrast-fg-2: color-mix(in oklab, var(--contrast-fg) 80%, var(--contrast-bg));
+  --contrast-rule: color-mix(in oklab, var(--contrast-fg) 16%, transparent);
+  --contrast-accent: color-mix(in oklab, var(--accent) 88%, var(--contrast-fg));
+  --contrast-ink: color-mix(in oklab, var(--accent) 75%, var(--contrast-fg));
+
+  /* Signal green: small accents only (approved stamps, status dots, the footer swatch). */
+  --signal: #7cfc06;
+  --on-signal: #0e151c;
+
+  --font-display: 'Anton', Impact, 'Arial Narrow Bold', sans-serif;
+  --display-weight: 400;
+  --font-sans: 'Inter Tight Variable', system-ui, sans-serif;
+  --font-mono: 'Martian Mono Variable', ui-monospace, Menlo, monospace;
+  --font-hand: 'Caveat Variable', 'Segoe Print', cursive;
+
+  --step--1: clamp(0.68rem, 0.66rem + 0.1vw, 0.76rem);
+  --step-0: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.2rem, 1.08rem + 0.6vw, 1.6rem);
+  --step-2: clamp(1.7rem, 1.3rem + 1.8vw, 3rem);
+  --step-3: clamp(2.6rem, 1.6rem + 4.4vw, 6rem);
+  --step-4: clamp(3.6rem, 1.8rem + 8vw, 11rem);
+  --step-5: clamp(4.4rem, 1.5rem + 13vw, 17rem);
+
+  --gutter: clamp(18px, 3.4vw, 56px);
+  --max: 1520px;
+  --radius: clamp(18px, 2vw, 30px);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0b1117;
+    --bg-2: #121b24;
+    --surface: #17212b;
+    --fog-wisp: #364a5e;
+    --fg: #e8eef5;
+    --fg-2: #b4c0cc;
+    --muted: #7f8e9d;
+    --rule: rgb(232 238 245 / 0.13);
+    --accent: #e5533a;
+    --accent-hot: #ff6a4d;
+    --accent-soft: #4a2620;
+    --contrast-bg: #eaf0f8;
+    --contrast-fg: #14202b;
+    --contrast-muted: #5d6c7b;
+  }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b1117;
+  --bg-2: #121b24;
+  --surface: #17212b;
+  --fog-wisp: #364a5e;
+  --fg: #e8eef5;
+  --fg-2: #b4c0cc;
+  --muted: #7f8e9d;
+  --rule: rgb(232 238 245 / 0.13);
+  --accent: #e5533a;
+  --accent-hot: #ff6a4d;
+  --accent-soft: #4a2620;
+  --contrast-bg: #eaf0f8;
+  --contrast-fg: #14202b;
+  --contrast-muted: #5d6c7b;
+}

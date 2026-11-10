@@ -1,0 +1,152 @@
+---
+/**
+ * First-visit montage, cut like the reel: the accent line opens onto the first city, then each city wipes up over the
+ * last with its `known` line and `note` (route.ts). San Francisco lands on fog, so the curtain opens straight into
+ * the hero photo.
+ */
+import { route, visits } from '../../data/route';
+import { displayWidthEm } from '../../lib/anton';
+import { padNumber } from '../../lib/format';
+
+const stops = [...route, ...visits];
+---
+
+{/* Decorative but for Skip: the frames and HUD are hidden from assistive tech, the button is not. */}
+<div class="intro" data-intro-root>
+  {stops.map((stop) => (
+    <div
+      aria-hidden="true"
+      class="intro__frame"
+      style={`--frame-bg: ${stop.tone.background}; --frame-fg: ${stop.tone.foreground}; --em: ${displayWidthEm(stop.city)}`}
+      data-frame
+    >
+      <p class="intro__known" data-known>
+        <span class="intro__aka">aka</span>
+        {stop.known}
+      </p>
+      <p class="intro__city display">
+        <span class="mask-line">
+          <span data-city>{stop.city}</span>
+        </span>
+      </p>
+      <p class="intro__coords" data-tidbit>
+        {stop.coords}
+        <span>{stop.note}</span>
+      </p>
+    </div>
+  ))}
+  <div class="wipe-line" style="--wipe-color: #c0362c" data-line-open aria-hidden="true"></div>
+  <div class="wipe-line" style="--wipe-color: #c0362c" data-line aria-hidden="true"></div>
+  <div class="intro__hud" data-hud>
+    <span aria-hidden="true">
+      <span data-count>01</span> / {padNumber(stops.length)}
+    </span>
+    <span class="intro__bar" aria-hidden="true">
+      <span data-progress></span>
+    </span>
+    <button type="button" class="intro__skip" data-skip>
+      Skip intro
+    </button>
+  </div>
+  <div class="film-grain" style="--grain-opacity: 0.12" aria-hidden="true"></div>
+</div>
+
+<style>
+  .intro {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--bg);
+    overflow: hidden;
+    clip-path: inset(0% 0% 0% 0%);
+  }
+  :global(.intro-on) .intro {
+    display: block;
+  }
+  /* Panels stack in order; each starts clipped away and the timeline wipes it in over the last. */
+  .intro__frame {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: clamp(0.7rem, 1.8vh, 1.3rem);
+    padding-inline: 4vw;
+    background: var(--frame-bg);
+    color: var(--frame-fg);
+    text-align: center;
+    clip-path: inset(100% 0% 0% 0%);
+  }
+  .intro__city {
+    /* Every name fits one line: never wider than 92vw, whatever its length (--em is its Anton width). */
+    font-size: min(15vw, 16rem, calc(92vw / var(--em)));
+    line-height: 0.82;
+  }
+  .intro__known {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6em;
+    font-size: clamp(1rem, 0.78rem + 1vw, 1.7rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  .intro__aka,
+  .intro__coords {
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .intro__aka {
+    font-size: 0.55em;
+    font-weight: 400;
+    opacity: 0.7;
+  }
+  .intro__coords {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4em 1.4em;
+    opacity: 0.85;
+    font-size: clamp(0.66rem, 0.6rem + 0.3vw, 0.85rem);
+  }
+  .intro__hud {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: clamp(18px, 3.6vh, 40px);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    /* Each frame hands the HUD its own text colour, so it always reads on that frame. */
+    color: var(--hud-fg, var(--fg));
+  }
+  .intro__bar {
+    position: relative;
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, currentColor 25%, transparent);
+  }
+  .intro__bar span {
+    position: absolute;
+    inset: 0;
+    transform-origin: left;
+    transform: scaleX(0);
+    background: currentColor;
+  }
+  .intro__skip {
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    opacity: 0.8;
+  }
+</style>
+
+<script>
+  import { initIntro } from './intro.client';
+  initIntro();
+</script>

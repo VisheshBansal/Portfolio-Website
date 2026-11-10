@@ -1,0 +1,13 @@
+dist/
+.astro/
+node_modules/
+photos/
+package-lock.json
+
+# v1 repo files, kept as they were
+.github/issue_label_bot.yaml
+.github/stale.yml
+.github/workflows/commit.yml
+.github/workflows/dependabot_bot_issue.yml
+CODE_OF_CONDUCT.md
+contributing.md

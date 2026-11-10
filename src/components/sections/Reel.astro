@@ -1,0 +1,107 @@
+---
+/** The Ferrari interlude: an orange line opens into black-and-white film cuts, then the punchline. */
+import ResponsivePicture from '../media/ResponsivePicture.astro';
+import ReelCopy from './ReelCopy.astro';
+import { reelImages } from '../../lib/assets';
+import { WIDTHS } from '../../lib/images';
+import { reel } from '../../data/copy';
+---
+
+<section class="reel" id="reel" data-reel-root aria-labelledby="reel-title">
+  <div class="wipe-line" data-reel-line aria-hidden="true"></div>
+  <div class="reel__film" data-reel-film>
+    {reel.shots.map((shot) => (
+      <figure class="reel__shot" data-reel-shot>
+        <ResponsivePicture
+          variants={[{ image: reelImages.get(shot.image), widths: WIDTHS.frame }]}
+          alt={shot.alt}
+          pictureClass="reel__picture"
+          class="reel__image"
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption class="mono">{shot.caption}</figcaption>
+      </figure>
+    ))}
+    <div class="reel__wash" data-reel-wash aria-hidden="true"></div>
+    <ReelCopy />
+    <div class="reel__flood" data-reel-flood aria-hidden="true">
+      <ReelCopy lit />
+    </div>
+    <div class="film-grain" style="--grain-opacity: 0.16; --grain-blend: overlay" aria-hidden="true"></div>
+  </div>
+</section>
+
+<style>
+  .reel {
+    --night: #0b1117;
+    --fog: #eaf0f8;
+    /* International Orange, deep enough to carry white type (5.5:1). */
+    --flood: #c0362c;
+    position: relative;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .reel__film {
+    position: absolute;
+    inset: 0;
+    background: var(--night);
+  }
+  .reel__shot {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+  }
+  .reel__shot :global(.reel__picture) {
+    position: absolute;
+    inset: 0;
+  }
+  .reel__shot :global(.reel__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.06);
+    transform: scale(1.12);
+  }
+  .reel__shot figcaption {
+    position: absolute;
+    left: var(--gutter);
+    bottom: clamp(18px, 4vh, 40px);
+    color: var(--fog);
+    opacity: 0.85;
+  }
+  /* After the cuts the screen goes to colour, never to black: fog for the setup, orange for the punchline. */
+  .reel__wash,
+  .reel__flood {
+    position: absolute;
+    inset: 0;
+  }
+  .reel__wash {
+    background: var(--fog);
+  }
+  .reel__flood {
+    background: var(--flood);
+  }
+
+  /* Closed until the timeline opens them; without motion the reel rests on its last frame. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .reel__film {
+      clip-path: inset(50% 0 50% 0);
+    }
+    :global(.js) .reel__wash {
+      clip-path: inset(100% 0 0 0);
+    }
+    :global(.js) .reel__flood {
+      clip-path: circle(0% at 50% 55%);
+    }
+  }
+</style>
+
+<script>
+  import { whenIdle } from '../../lib/motion';
+  import { initReel } from './reel.client';
+  whenIdle(initReel);
+</script>

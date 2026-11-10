@@ -1,0 +1,867 @@
+---
+/**
+ * Contact: the night panel with the access-request card.
+ * Behaviour lives in contact.client.ts; the data-* attributes are its hooks.
+ */
+import { person } from '../../data/site';
+import { contactPitch } from '../../data/copy';
+
+interface AccessOption {
+  readonly label: string;
+  readonly duration: string;
+  readonly risk: string;
+}
+
+/** Non-empty by type: the first option is preselected and seeds the policy lines. */
+const accessOptions: readonly [AccessOption, ...AccessOption[]] = [
+  { label: 'Coffee chat', duration: '30 min', risk: 'Caffeine' },
+  { label: 'Build something', duration: 'Until it ships', risk: 'Scope creep' },
+  { label: 'Hire me', duration: "Let's talk", risk: 'Worth it' },
+  { label: 'Just say hi', duration: 'One email', risk: 'None' },
+];
+const [defaultAccess] = accessOptions;
+
+const JUSTIFICATION_MAX_LENGTH = 600;
+
+/** Last path segment of a profile URL: "VisheshBansal" for github.com/VisheshBansal. */
+const profileHandle = (href: string) => new URL(href).pathname.split('/').filter(Boolean).pop() ?? '';
+const identities = person.links.map((link) => ({ ...link, handle: profileHandle(link.href) }));
+
+const initials = `${person.first.charAt(0)}${person.last.charAt(0)}`;
+/** Abbreviation at build time; the client keeps it current across daylight saving. */
+const zoneName =
+  new Intl.DateTimeFormat('en-US', { timeZone: person.timezone, timeZoneName: 'short' })
+    .formatToParts(new Date())
+    .find((part) => part.type === 'timeZoneName')?.value ?? '';
+
+/** The pitch lands on its last sentence, which gets its own line and the accent. */
+const pitchSentences = contactPitch.split(/(?<=[.!?])\s+/);
+const pitchSetup = pitchSentences.slice(0, -1).join(' ');
+const pitchPunchline = pitchSentences.at(-1) ?? contactPitch;
+---
+
+<section id="contact" class="contact" aria-labelledby="contact-title" data-contact data-tz={person.timezone}>
+  <div class="contact__stage" data-stage>
+    <div class="contact__panel night" data-panel>
+      <div class="contact__inner wrap" data-inner>
+        <div class="contact__top mono" data-meta>
+          <p class="contact__eyebrow">Last stop</p>
+          <p class="contact__clock">
+            <span class="contact__status">
+              <i class="contact__dot" data-dot aria-hidden="true"></i>
+              <span data-status>Local time</span>
+            </span>
+            <span class="contact__time">
+              {person.location.city} <span data-clock>--:--:-- --</span> <span data-zone>{zoneName}</span>
+            </span>
+          </p>
+        </div>
+
+        <div class="contact__grid">
+          <div class="contact__head">
+            <h2 id="contact-title" class="contact__title display">
+              <span class="sr-only">Request access</span>
+              <span class="contact__title-vis" aria-hidden="true" data-title>
+                <span class="contact__line" data-line>
+                  Request
+                </span>
+                <span class="contact__line contact__line--hot" data-line>
+                  access.
+                </span>
+              </span>
+            </h2>
+            <p class="contact__note hand" data-note>
+              <span>least privilege, maximum coffee</span>
+              <svg
+                class="contact__arrow"
+                viewBox="0 0 96 64"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 44c18 14 52 18 84-12" pathLength="1" data-draw></path>
+                <path d="M74 34 88 32 85 46" pathLength="1" data-draw></path>
+              </svg>
+            </p>
+            <p class="contact__pitch" data-pitch>
+              {pitchSetup} <span class="contact__punchline">{pitchPunchline}</span>
+            </p>
+          </div>
+
+          <form
+            class="req"
+            action={`mailto:${person.email}`}
+            method="get"
+            aria-labelledby="req-title"
+            data-form
+            data-card
+            data-email={person.email}
+          >
+            <span class="req__scan" aria-hidden="true">
+              <span class="req__scanline" data-scan></span>
+            </span>
+
+            <div class="req__head">
+              <h3 id="req-title" class="req__title mono">
+                Access request
+              </h3>
+              <span class="req__id mono" data-req-id>
+                REQ-0000
+              </span>
+              <span class="req__status mono" data-state="draft" data-req-status>
+                <i aria-hidden="true"></i>
+                <span data-req-status-text>Draft</span>
+              </span>
+            </div>
+
+            <dl class="req__who">
+              <div class="req__cell">
+                <dt class="req__label mono">Resource</dt>
+                <dd class="req__ident">
+                  <span class="req__avatar display" aria-hidden="true">
+                    {initials}
+                  </span>
+                  <span class="req__names">
+                    <span class="req__name">{person.name}</span>
+                    <span class="req__sub mono">
+                      Human · {person.location.city}, {person.location.region}
+                    </span>
+                  </span>
+                </dd>
+              </div>
+              <div class="req__cell">
+                <dt class="req__label mono">Requester</dt>
+                <dd class="req__ident">
+                  <span class="req__avatar req__avatar--you display" aria-hidden="true">
+                    ?
+                  </span>
+                  <span class="req__names">
+                    <span class="req__name">You</span>
+                    <span class="req__sub mono">Hopefully also human</span>
+                  </span>
+                </dd>
+              </div>
+            </dl>
+
+            <div class="req__row">
+              <span id="req-access" class="req__label mono">
+                Access
+              </span>
+              <div class="req__chips" role="radiogroup" aria-labelledby="req-access">
+                {accessOptions.map((option) => (
+                  <label class="chip">
+                    <input
+                      type="radio"
+                      name="subject"
+                      value={`Access request: ${option.label}`}
+                      checked={option === defaultAccess}
+                      data-duration={option.duration}
+                      data-risk={option.risk}
+                    />
+                    <span class="chip__face mono">{option.label}</span>
+                  </label>
+                ))}
+              </div>
+              <dl class="req__policy mono">
+                <div>
+                  <dt>Duration</dt>
+                  <dd>
+                    <span data-out-duration>{defaultAccess.duration}</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Risk</dt>
+                  <dd>
+                    <span data-out-risk>{defaultAccess.risk}</span>
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="req__row">
+              <div class="req__labelrow">
+                <label for="req-body" class="req__label mono">
+                  Justification
+                </label>
+                <span id="req-body-hint" class="req__label mono">
+                  Optional
+                </span>
+              </div>
+              <div class="req__field">
+                <textarea
+                  id="req-body"
+                  name="body"
+                  rows="3"
+                  maxlength={JUSTIFICATION_MAX_LENGTH}
+                  placeholder="What's on your mind? Context speeds up approvals."
+                  aria-describedby="req-body-hint"
+                  data-body
+                  data-lenis-prevent
+                ></textarea>
+                <span class="req__count mono" aria-hidden="true">
+                  <span data-count>0</span>/{JUSTIFICATION_MAX_LENGTH}
+                </span>
+              </div>
+            </div>
+
+            <div class="req__submit">
+              <button type="submit" class="pill display" data-btn>
+                <span>Request access</span>
+                <span class="pill__icon" aria-hidden="true">
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    data-fly
+                  >
+                    <path d="M2.5 8h11M9 3.5 13.5 8 9 12.5"></path>
+                  </svg>
+                </span>
+              </button>
+              <div class="req__after mono">
+                <p>Typical approval time: under 24 hours</p>
+                <p>
+                  No mail app?{' '}
+                  <button type="button" class="req__copy" data-copy>
+                    <span>Copy address</span>
+                    <span aria-hidden="true" data-copy-done>
+                      Copied
+                    </span>
+                  </button>
+                </p>
+              </div>
+            </div>
+            <p class="sr-only" role="status" data-live></p>
+          </form>
+
+          <div class="ids">
+            <h3 class="ids__title mono" data-id-row>
+              Linked identities
+            </h3>
+            <ul class="ids__list">
+              {identities.map((identity) => (
+                <li data-id-row>
+                  <a class="ids__link" href={identity.href} target="_blank" rel="noopener">
+                    <span class="ids__provider">{identity.label}</span>
+                    <span class="ids__handle mono">{identity.handle}</span>
+                    <svg
+                      class="ids__arrow"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6"></path>
+                    </svg>
+                    <span class="sr-only">(opens in a new tab)</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact {
+    position: relative;
+    background: var(--bg);
+  }
+  .contact__stage {
+    position: relative;
+    display: grid;
+    min-height: 100svh;
+    background: var(--bg);
+  }
+  .contact__panel {
+    position: relative;
+    display: grid;
+    overflow: clip;
+  }
+  .contact__panel .req :focus-visible {
+    outline-color: var(--accent);
+  }
+
+  .contact__inner {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(26px, 4.5svh, 48px);
+    padding-block: clamp(84px, 11svh, 128px) clamp(40px, 6svh, 72px);
+  }
+
+  .contact__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px 24px;
+    color: var(--contrast-muted);
+  }
+  .contact__clock {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    text-align: right;
+  }
+  .contact__status,
+  .contact__time {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+  }
+  .contact__status {
+    color: var(--contrast-fg);
+  }
+  .contact__dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--contrast-muted);
+  }
+  .contact__dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    opacity: 0;
+  }
+  .contact__dot[data-mood='awake'] {
+    background: var(--contrast-accent);
+  }
+  .contact__dot[data-mood='awake']::after {
+    animation: ping 2.4s var(--ease-out) infinite;
+  }
+  .contact__dot[data-mood='asleep'] {
+    animation: contact-breathe 4.2s ease-in-out infinite;
+  }
+  @keyframes contact-breathe {
+    50% {
+      opacity: 0.35;
+    }
+  }
+  @media (min-width: 640px) {
+    .contact__clock {
+      flex-direction: row;
+      gap: 22px;
+    }
+  }
+
+  .contact__grid {
+    display: grid;
+    gap: clamp(44px, 8vw, 72px);
+    margin-block: auto;
+  }
+  .contact__head {
+    container-type: inline-size;
+  }
+  .contact__title {
+    font-size: var(--step-5);
+    font-size: min(calc(100cqi / 3.24), 23svh);
+  }
+  .contact__title-vis {
+    display: block;
+    width: fit-content;
+  }
+  .contact__line {
+    display: block;
+    white-space: nowrap;
+  }
+  .contact__line--hot {
+    color: var(--contrast-accent);
+  }
+
+  .contact__note {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.3em;
+    width: fit-content;
+    margin-top: 0.7em;
+    font-size: var(--step-1);
+    color: var(--contrast-ink);
+    transform: rotate(-3deg);
+    transform-origin: 0 100%;
+  }
+  .contact__arrow {
+    flex: none;
+    width: 2.2em;
+    height: auto;
+    margin-bottom: -0.1em;
+    transform: rotate(100deg);
+  }
+  .contact__arrow path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .contact__pitch {
+    max-width: 34rem;
+    margin-top: clamp(16px, 2.4svh, 28px);
+    color: var(--contrast-fg-2);
+    text-wrap: balance;
+  }
+  .contact__punchline {
+    display: block;
+    font-weight: 600;
+    /* Body-size text: --contrast-ink clears 4.5:1 on the panel in both themes; --contrast-accent does not. */
+    color: var(--contrast-ink);
+  }
+
+  /* Access request card */
+  .req {
+    --card-muted: color-mix(in oklab, var(--muted) 70%, var(--fg));
+    position: relative;
+    width: 100%;
+    max-width: 40rem;
+    padding: clamp(32px, 3vw, 42px) clamp(18px, 2.4vw, 34px) clamp(20px, 2.4vw, 30px);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--fg);
+    transform-origin: 50% 100%;
+  }
+  .req::before {
+    content: '';
+    position: absolute;
+    top: 13px;
+    left: 50%;
+    width: 52px;
+    height: 8px;
+    margin-left: -26px;
+    border-radius: 999px;
+    background: var(--contrast-bg);
+  }
+  .req__scan {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .req__scanline {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+  .req__scanline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .req__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .req__title {
+    margin-right: auto;
+    color: var(--fg);
+  }
+  .req__id {
+    color: var(--card-muted);
+  }
+  .req__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 11px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    color: var(--fg-2);
+  }
+  .req__status i {
+    position: relative;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--card-muted);
+  }
+  .req__status i::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    opacity: 0;
+  }
+  .req__status[data-state='pending'] {
+    color: var(--fg);
+    border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+  }
+  .req__status[data-state='pending'] i {
+    background: var(--accent);
+  }
+  .req__status[data-state='pending'] i::after {
+    animation: ping 2s var(--ease-out) infinite;
+  }
+
+  .req__label {
+    color: var(--card-muted);
+  }
+  .req__who {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 16px;
+    padding-block: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .req__cell {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+  }
+  .req__ident {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    margin: 0;
+  }
+  .req__avatar {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg);
+    font-size: var(--step-0);
+    line-height: 1;
+  }
+  .req__avatar--you {
+    background: none;
+    color: var(--fg-2);
+    border: 1px dashed color-mix(in oklab, var(--fg) 40%, transparent);
+  }
+  .req__names {
+    display: grid;
+    min-width: 0;
+  }
+  .req__name {
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .req__sub {
+    color: var(--card-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .req__row {
+    display: grid;
+    gap: 12px;
+    padding-block: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .req__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .chip {
+    position: relative;
+    display: inline-flex;
+  }
+  .chip input {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .chip__face {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid color-mix(in oklab, var(--fg) 26%, transparent);
+    border-radius: 999px;
+    color: var(--fg);
+    white-space: nowrap;
+  }
+  .chip__face::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--accent);
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+      opacity 0.12s,
+      transform 0.55s var(--ease-out);
+  }
+  .chip input:checked + .chip__face {
+    color: var(--bg);
+    border-color: transparent;
+  }
+  .chip input:checked + .chip__face::before {
+    opacity: 1;
+    transform: none;
+  }
+  .chip input:focus-visible + .chip__face {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  @media (hover: hover) {
+    .chip:hover input:not(:checked) + .chip__face {
+      border-color: color-mix(in oklab, var(--fg) 62%, transparent);
+    }
+  }
+  @media (forced-colors: active) {
+    .chip input:checked + .chip__face {
+      outline: 2px solid CanvasText;
+      outline-offset: 2px;
+    }
+  }
+
+  .req__policy {
+    display: grid;
+    gap: 4px 24px;
+    color: var(--card-muted);
+  }
+  .req__policy div {
+    display: flex;
+    gap: 10px;
+  }
+  .req__policy dd {
+    margin: 0;
+    overflow: hidden;
+    color: var(--fg);
+    white-space: nowrap;
+  }
+  .req__policy dd span {
+    display: inline-block;
+  }
+  @media (min-width: 420px) {
+    .req__policy {
+      grid-template-columns: auto 1fr;
+    }
+  }
+
+  .req__labelrow {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .req__field {
+    position: relative;
+  }
+  .req textarea {
+    display: block;
+    width: 100%;
+    min-height: 6.4em;
+    padding: 12px 14px 28px;
+    resize: vertical;
+    border: 1px solid color-mix(in oklab, var(--fg) 18%, transparent);
+    border-radius: 14px;
+    background: color-mix(in oklab, var(--bg) 55%, var(--surface));
+    color: var(--fg);
+    font: inherit;
+    font-size: var(--step-0);
+    line-height: 1.45;
+  }
+  .req textarea::placeholder {
+    color: var(--card-muted);
+    opacity: 1;
+  }
+  .req textarea:focus-visible {
+    border-color: transparent;
+    outline-offset: 2px;
+  }
+  .req__count {
+    position: absolute;
+    right: 14px;
+    bottom: 8px;
+    color: var(--card-muted);
+    pointer-events: none;
+  }
+
+  .req__submit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+    padding-top: 20px;
+  }
+  .req__after {
+    display: grid;
+    gap: 4px;
+    color: var(--card-muted);
+    text-wrap: balance;
+  }
+  .req__copy {
+    display: inline-grid;
+    color: var(--fg);
+    text-transform: inherit;
+    letter-spacing: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .req__copy > span {
+    grid-area: 1 / 1;
+    transition: opacity 0.25s;
+  }
+  .req__copy [data-copy-done],
+  .req__copy[data-copied] > span:first-child {
+    opacity: 0;
+  }
+  .req__copy[data-copied] [data-copy-done] {
+    opacity: 1;
+  }
+  @media (max-width: 560px) {
+    .pill {
+      width: 100%;
+    }
+  }
+
+  /* Linked identities */
+  .ids__title {
+    margin-bottom: 12px;
+    color: var(--contrast-muted);
+  }
+  .ids__list {
+    display: grid;
+    column-gap: clamp(20px, 2.4vw, 36px);
+  }
+  .ids__link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding-block: 10px;
+    border-top: 1px solid var(--contrast-rule);
+  }
+  .ids__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -1px;
+    height: 1px;
+    background: var(--contrast-accent);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .ids__provider {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .ids__handle {
+    min-width: 0;
+    margin-left: auto;
+    overflow: hidden;
+    color: var(--contrast-muted);
+    text-overflow: ellipsis;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .ids__arrow {
+    flex: none;
+    width: 13px;
+    height: 13px;
+    transition: transform 0.45s var(--ease-out);
+  }
+  @media (hover: hover) {
+    .ids__link:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+    .ids__link:hover .ids__arrow {
+      transform: translate(2px, -2px);
+    }
+  }
+  @media (min-width: 640px) {
+    .ids__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .contact__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: 1fr auto;
+      grid-template-areas: 'head card' 'ids card';
+      column-gap: clamp(40px, 5vw, 96px);
+      row-gap: clamp(24px, 4svh, 44px);
+    }
+    .contact__head {
+      grid-area: head;
+    }
+    .req {
+      grid-area: card;
+      align-self: center;
+      justify-self: end;
+    }
+    .ids {
+      grid-area: ids;
+    }
+    .contact__arrow {
+      transform: rotate(-12deg);
+    }
+  }
+  @media (min-width: 1024px) and (max-height: 860px) {
+    .contact__inner {
+      gap: 22px;
+      padding-top: 78px;
+      padding-bottom: 28px;
+    }
+    .req {
+      padding-top: 30px;
+      padding-bottom: 20px;
+    }
+    .req__who,
+    .req__row {
+      padding-block: 12px;
+    }
+    .req__submit {
+      padding-top: 14px;
+    }
+    .req textarea {
+      min-height: 5em;
+    }
+    .ids__link {
+      min-height: 44px;
+      padding-block: 8px;
+    }
+  }
+</style>
+
+<script>
+  import { whenIdle } from '../../lib/motion';
+  import { initContact } from './contact.client';
+  whenIdle(initContact);
+</script>

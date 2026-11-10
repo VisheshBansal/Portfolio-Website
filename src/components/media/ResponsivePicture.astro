@@ -1,0 +1,57 @@
+---
+/**
+ * Art-directed, multi-format <picture>. Variants are ordered: the first whose `media` matches wins,
+ * and the last (with no `media`) is the default. Each variant is emitted in every requested format.
+ */
+import type { ImageMetadata } from 'astro';
+import type { HTMLAttributes } from 'astro/types';
+import { getImage } from 'astro:assets';
+import { buildSrcset, MODERN_FORMATS, type ImageFormat } from '../../lib/images';
+
+export interface PictureVariant {
+  readonly image: ImageMetadata;
+  readonly widths: readonly number[];
+  readonly media?: string | undefined;
+}
+
+type ImgAttributes = Omit<HTMLAttributes<'img'>, 'src' | 'srcset' | 'sizes' | 'width' | 'height' | 'alt'>;
+
+interface Props extends ImgAttributes {
+  variants: readonly PictureVariant[];
+  alt: string;
+  sizes?: string;
+  formats?: readonly ImageFormat[];
+  pictureClass?: string;
+  /** Width of the legacy <img src> fallback. */
+  fallbackWidth?: number;
+}
+
+const { variants, alt, sizes = '100vw', formats = MODERN_FORMATS, pictureClass, fallbackWidth = 1600, ...imgAttributes } = Astro.props;
+
+const defaultVariant = variants.at(-1);
+if (!defaultVariant) throw new Error('ResponsivePicture requires at least one variant');
+
+const sources = await Promise.all(
+  variants.flatMap((variant) =>
+    formats.map(async (format) => ({
+      media: variant.media,
+      type: `image/${format}`,
+      srcset: await buildSrcset(variant.image, variant.widths, format),
+    })),
+  ),
+);
+
+const keepsAlpha = defaultVariant.image.format === 'png' || defaultVariant.image.format === 'webp';
+const fallback = await getImage({
+  src: defaultVariant.image,
+  width: Math.min(fallbackWidth, defaultVariant.image.width),
+  format: keepsAlpha ? 'webp' : 'jpeg',
+});
+---
+
+<picture class={pictureClass}>
+  {sources.map((source) => (
+    <source media={source.media} type={source.type} srcset={source.srcset} sizes={sizes} />
+  ))}
+  <img src={fallback.src} alt={alt} width={defaultVariant.image.width} height={defaultVariant.image.height} {...imgAttributes} />
+</picture>

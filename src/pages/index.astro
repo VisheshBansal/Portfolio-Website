@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import Cursor from '../components/layout/Cursor.astro';
+import Intro from '../components/layout/Intro.astro';
+import Nav from '../components/layout/Nav.astro';
+import ReplayIntro from '../components/layout/ReplayIntro.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import Hero from '../components/hero/Hero.astro';
+import Reel from '../components/sections/Reel.astro';
+import Manifesto from '../components/sections/Manifesto.astro';
+import Roles from '../components/sections/Roles.astro';
+import Journey from '../components/sections/Journey.astro';
+import Ambition from '../components/sections/Ambition.astro';
+import AccessReview from '../components/sections/AccessReview.astro';
+import Places from '../components/sections/Places.astro';
+import Icebreakers from '../components/sections/Icebreakers.astro';
+import Contact from '../components/sections/Contact.astro';
+---
+
+<Base>
+  <Intro />
+  <Nav />
+  <main>
+    <Hero />
+    <Reel />
+    <Manifesto />
+    <Roles />
+    <Journey />
+    <Ambition />
+    <AccessReview />
+    <Places />
+    <Icebreakers />
+    <Contact />
+  </main>
+  <SiteFooter />
+  <Cursor />
+  {import.meta.env.DEV && <ReplayIntro />}
+</Base>

@@ -1,0 +1,78 @@
+---
+/**
+ * The reel's words. Reel renders them twice, ink over the fog wash and a lit copy inside the flood,
+ * so the type turns white exactly where the orange reaches it. Colours come from the .reel root.
+ */
+import { reel } from '../../data/copy';
+
+interface Props {
+  /** The white copy inside the flood. Decorative: assistive tech reads the ink copy. */
+  lit?: boolean;
+}
+const { lit = false } = Astro.props;
+const Title = lit ? 'p' : 'h2';
+---
+
+<div class:list={['reel__copy', { 'reel__copy--lit': lit }]} aria-hidden={lit ? 'true' : undefined} data-reel-copy>
+  <Title id={lit ? undefined : 'reel-title'} class="reel__title display">
+    {reel.beats.map((beat) => (
+      <span class="mask-line reel__beat">
+        <span data-reel-beat>{beat}</span>
+      </span>
+    ))}
+  </Title>
+  <p class="reel__kicker" data-reel-kicker>
+    {reel.kicker}
+  </p>
+</div>
+
+<style>
+  .reel__copy {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: clamp(16px, 3vh, 30px);
+    padding-inline: var(--gutter);
+    text-align: center;
+    color: var(--night);
+    pointer-events: none;
+  }
+  /* White beats, ink kicker. Ink on the flood is 3.4:1, so the kicker never drops below large-text size (24px). */
+  .reel__copy--lit {
+    color: #fff;
+  }
+  .reel__copy--lit .reel__kicker {
+    color: var(--night);
+  }
+  .reel__title {
+    font-size: clamp(2.4rem, 6.4vw, 8.2rem);
+    line-height: 0.9;
+  }
+  .reel__kicker {
+    max-width: 36ch;
+    font-size: clamp(1.5rem, 1.1rem + 1vw, 2.1rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  /* Starting states exist only when the timeline will drive them. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) [data-reel-beat],
+    :global(.js) .reel__kicker {
+      visibility: hidden;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .reel__title {
+      /* Beats may wrap here, but never mid-word: the longest word ("Ferrari-motivated.", 7.66em in Anton) must fit the line. */
+      font-size: min(12.5vw, calc((100vw - 2 * var(--gutter)) / 7.9));
+    }
+    .reel__beat {
+      white-space: normal;
+    }
+  }
+</style>

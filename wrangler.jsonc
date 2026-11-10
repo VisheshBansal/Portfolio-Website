@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "vishesh-portfolio",
+  "compatibility_date": "2026-11-01",
+  // The built site, with v1's short links and the Last.fm proxy in front: requests that match no asset reach the Worker.
+  "main": "worker/index.ts",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+  },
+  // Custom domains: the deploy adds their DNS records and certificates.
+  "routes": [
+    { "pattern": "visheshb.com", "custom_domain": true },
+    { "pattern": "www.visheshb.com", "custom_domain": true },
+  ],
+  "workers_dev": true,
+  "preview_urls": true,
+  "observability": { "enabled": true },
+}

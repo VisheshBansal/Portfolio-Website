@@ -1,0 +1,276 @@
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+img,
+svg,
+canvas,
+video,
+picture {
+  display: block;
+  max-width: 100%;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+ul,
+ol,
+dl,
+dd,
+blockquote {
+  margin: 0;
+}
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+::selection {
+  background: var(--accent);
+  color: var(--surface);
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+/* Sections focused after an in-page jump: the scroll is the cue, not a ring around the whole section. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* Type roles */
+.display {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: 0.005em;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+.hand {
+  font-family: var(--font-hand);
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+
+/* Primary action: an accent pill with a round arrow chip. */
+.pill {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 60px;
+  padding: 8px 8px 8px 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: var(--step-1);
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+.pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--accent-hot);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.6s var(--ease-out);
+}
+.pill__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--accent);
+  overflow: hidden;
+}
+.pill__icon svg {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.5s var(--ease-out);
+}
+.pill:active {
+  transform: scale(0.98);
+}
+.pill:focus-visible {
+  outline-offset: 4px;
+}
+@media (hover: hover) {
+  .pill:hover::before {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  .pill:hover .pill__icon svg {
+    transform: translateX(3px);
+  }
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* A line of display type that characters rise into (see lib/text.ts). */
+.mask-line {
+  display: block;
+  overflow: hidden;
+  padding: 0.04em 0 0.02em;
+  white-space: nowrap;
+}
+.mask-line > * {
+  display: inline-block;
+}
+
+/* Animated film grain; tune with --grain-opacity and --grain-blend. */
+.film-grain {
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  opacity: var(--grain-opacity, 0.14);
+  mix-blend-mode: var(--grain-blend, normal);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: film-grain 0.55s steps(4) infinite;
+}
+/* Status lights. --ping-scale and --ping-opacity tune it per light. */
+@keyframes ping {
+  from {
+    transform: scale(1);
+    opacity: var(--ping-opacity, 0.7);
+  }
+  to {
+    transform: scale(var(--ping-scale, 3.4));
+    opacity: 0;
+  }
+}
+
+@keyframes film-grain {
+  25% {
+    transform: translate(3%, -2%);
+  }
+  50% {
+    transform: translate(-2%, 3%);
+  }
+  75% {
+    transform: translate(2%, 2%);
+  }
+}
+
+/* The accent line the signature wipe draws from (see lib/wipe.ts). */
+.wipe-line {
+  position: absolute;
+  inset: 50% 0 auto;
+  z-index: 3;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--wipe-color, var(--accent));
+  transform: scaleX(0);
+}
+.night {
+  background: var(--contrast-bg);
+  color: var(--contrast-fg);
+}
+.night :focus-visible {
+  outline-color: var(--contrast-accent);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Intro gating: hidden only when JS runs; .ready is the no-JS failsafe */
+.js [data-intro] {
+  visibility: hidden;
+}
+.js.ready [data-intro] {
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-intro] {
+    visibility: visible;
+  }
+  .film-grain {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    /* Without this, infinite loops (status pings) strobe at 0.001ms instead of stopping. */
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

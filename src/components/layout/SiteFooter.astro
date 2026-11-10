@@ -1,0 +1,228 @@
+---
+/** Site footer: section links, the colophon with a hidden swatch, and the outlined wordmark. */
+import { person } from '../../data/site';
+import { footerNotes } from '../../data/copy';
+import { footerLinks } from '../../data/navigation';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="foot night" data-site-footer>
+  <div class="foot__inner">
+    <nav class="foot__nav mono" aria-label="Footer">
+      <ul>
+        {footerLinks.map((link) => (
+          <li>
+            <a href={link.href}>{link.label}</a>
+          </li>
+        ))}
+        <li>
+          <a href="#top">
+            Back to the fog<span class="sr-only"> (top of page)</span>
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M8 13.5v-11M3.5 7 8 2.5 12.5 7"></path>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="foot__meta mono">
+      <p>
+        © {year} {person.name}
+      </p>
+      <p>
+        {footerNotes.built} No cookies,{' '}
+        <span class="foot__nowrap">
+          no trackers.
+          <span class="egg" data-egg>
+            <button type="button" class="egg__btn" aria-describedby="egg-tip" data-egg-btn>
+              <span class="egg__swatch" aria-hidden="true"></span>
+              <span class="sr-only">Secret swatch</span>
+            </button>
+            <span class="egg__tip" id="egg-tip" role="tooltip">
+              <span class="egg__found hand">you found it</span>
+              <span class="mono">{person.favouriteColour}</span>
+            </span>
+          </span>
+        </span>
+      </p>
+      <p>{footerNotes.hobbies}</p>
+    </div>
+  </div>
+  <div class="foot__mark" aria-hidden="true" data-footer-mark>
+    <svg class="foot__svg" viewBox="0 0 1000 142">
+      <text x="0" y="141" textLength="1000" lengthAdjust="spacing">
+        {person.name.toUpperCase()}
+      </text>
+    </svg>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    position: relative;
+    overflow: clip;
+  }
+  .foot__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 22px 40px;
+    width: calc(100% - 2 * var(--gutter));
+    max-width: calc(var(--max) - 2 * var(--gutter));
+    margin-inline: auto;
+    padding-top: clamp(22px, 3vw, 34px);
+    border-top: 1px solid var(--contrast-rule);
+  }
+  .foot__nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 26px;
+  }
+  .foot__nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding-block: 6px;
+  }
+  .foot__nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s var(--ease-out);
+  }
+  .foot__nav svg {
+    width: 12px;
+    height: 12px;
+  }
+  @media (hover: hover) {
+    .foot__nav a:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+  .foot__meta {
+    display: grid;
+    gap: 6px;
+    color: var(--contrast-muted);
+  }
+  .foot__nowrap {
+    white-space: nowrap;
+  }
+  @media (min-width: 760px) {
+    .foot__meta {
+      text-align: right;
+    }
+  }
+
+  .foot__mark {
+    margin: clamp(28px, 5vw, 64px) var(--gutter) -1.4vw;
+  }
+  .foot__svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    user-select: none;
+  }
+  .foot__svg text {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: 164px;
+    fill: none;
+    stroke: color-mix(in oklab, var(--contrast-fg) 42%, transparent);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* The hidden swatch */
+  .egg {
+    position: relative;
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  .egg__btn {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    margin: -8px -7px;
+    border-radius: 6px;
+  }
+  .egg__swatch {
+    width: 7px;
+    height: 7px;
+    border-radius: 1px;
+    background: var(--signal);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--contrast-fg) 22%, transparent);
+    transition: transform 0.6s var(--ease-out);
+  }
+  .egg__tip {
+    position: absolute;
+    right: -10px;
+    bottom: calc(100% + 14px);
+    z-index: 2;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 14px 8px;
+    border-radius: 999px;
+    background: var(--signal);
+    color: var(--on-signal);
+    white-space: nowrap;
+    text-align: left;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(6px) scale(0.94);
+    transform-origin: 90% 100%;
+    transition:
+      opacity 0.3s,
+      transform 0.5s var(--ease-out),
+      visibility 0s 0.5s;
+  }
+  .egg__found {
+    color: inherit;
+    font-size: var(--step-1);
+  }
+  .egg:hover .egg__swatch,
+  .egg__btn:focus-visible .egg__swatch,
+  .egg[data-open] .egg__swatch {
+    transform: scale(1.6) rotate(45deg);
+  }
+  .egg:hover .egg__tip,
+  .egg__btn:focus-visible + .egg__tip,
+  .egg[data-open] .egg__tip {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.3s,
+      transform 0.5s var(--ease-out),
+      visibility 0s;
+  }
+  .egg[data-dismissed] .egg__tip {
+    visibility: hidden;
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { whenIdle } from '../../lib/motion';
+  import { initSiteFooter } from './siteFooter.client';
+  whenIdle(initSiteFooter);
+</script>

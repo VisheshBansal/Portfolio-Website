@@ -1,0 +1,1802 @@
+---
+/**
+ * The route so far. On wide screens a pinned rail strings a cable between the stops (journey.client.ts); on small
+ * screens, with reduced motion or without JS, the same markup stacks into a vertical timeline.
+ */
+import { career, education, patent, type Role } from '../../data/career';
+import { route, type Stop as City } from '../../data/route';
+import { writing } from '../../data/writing';
+import { displayWidthEm } from '../../lib/anton';
+import { padNumber } from '../../lib/format';
+import { MOTIF_CAPTIONS, buildMotifArt, motifFor, type Motif } from './journey.motifs';
+
+type Tone = 'day' | 'night' | 'warm';
+/** Back-to-back roles at one org, oldest first. */
+type RoleRun = [Role, ...Role[]];
+
+interface JourneyStop {
+  readonly id: string;
+  readonly number: string;
+  readonly org: string;
+  readonly roles: RoleRun;
+  /** The first role; a single-role stop shows only this one. */
+  readonly lead: Role;
+  readonly years: string;
+  readonly place: string | undefined;
+  readonly city: City | undefined;
+  readonly live: boolean;
+  readonly multi: boolean;
+  readonly motif: Motif;
+  readonly tone: Tone;
+  /** Width of the org name in em, so it can be set to fill its card. */
+  readonly widthEm: number;
+}
+
+/** A rail label: a city on the route, hung over the stop or role it belongs to. */
+interface Station {
+  readonly anchor: string;
+  readonly city: City;
+}
+
+/** Cards cycle through these; they match the [data-tone] styles below. */
+const TONES: readonly Tone[] = ['day', 'night', 'warm'];
+const NOW = 'now';
+const STOP_NUMBER_DIGITS = 2;
+const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+
+const yearRange = (start: string, end: string): string => (start === end ? start : `${start} → ${end}`);
+const earliestYear = (years: readonly string[]): string => [...years].sort()[0] ?? '';
+const latestYear = (years: readonly string[]): string => (years.includes(NOW) ? NOW : ([...years].sort().at(-1) ?? ''));
+const slugify = (text: string): string =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+const cityNamed = (name: string | undefined): City | undefined => route.find((city) => city.city === name);
+const roleAnchor = (stopId: string, index: number): string => `${stopId}-r${index + 1}`;
+const toneAt = (index: number): Tone => TONES[index % TONES.length] ?? 'day';
+const numberWord = (count: number): string => NUMBER_WORDS[count] ?? String(count);
+const capitalize = (text: string): string => text.replace(/^./, (first) => first.toUpperCase());
+
+function groupByOrg(roles: readonly Role[]): RoleRun[] {
+  const runs: RoleRun[] = [];
+  for (const role of roles) {
+    const current = runs.at(-1);
+    if (current && current[0].org === role.org) current.push(role);
+    else runs.push([role]);
+  }
+  return runs;
+}
+
+function toStop(roles: RoleRun, index: number): JourneyStop {
+  const [lead] = roles;
+  const end = latestYear(roles.map((role) => role.end));
+  const place = roles.find((role) => role.place)?.place;
+  return {
+    id: `jy-${slugify(lead.org)}`,
+    number: padNumber(index + 1, STOP_NUMBER_DIGITS),
+    org: lead.org,
+    roles,
+    lead,
+    years: yearRange(earliestYear(roles.map((role) => role.start)), end),
+    place,
+    city: cityNamed(place),
+    live: end === NOW,
+    multi: roles.length > 1,
+    motif: motifFor(lead.org),
+    tone: toneAt(index),
+    widthEm: displayWidthEm(lead.org),
+  };
+}
+
+/** One label per role on a multi-role stop, else one per stop, wherever the place is on the route. */
+function stationsOf(stop: JourneyStop): Station[] {
+  const anchors = stop.multi
+    ? stop.roles.map((role, index) => ({ anchor: roleAnchor(stop.id, index), place: role.place }))
+    : [{ anchor: stop.id, place: stop.place }];
+  return anchors.flatMap(({ anchor, place }) => {
+    const city = cityNamed(place);
+    return city ? [{ anchor, city }] : [];
+  });
+}
+
+const stops = groupByOrg([...career].reverse()).map(toStop);
+const stations = stops.flatMap(stationsOf);
+const [origin] = route;
+const terminal = route.at(-1);
+if (!origin || !terminal) throw new Error('The journey needs at least one city on the route');
+const firstYear = earliestYear(career.map((role) => role.start));
+const lastYear = latestYear(career.map((role) => role.end));
+const lede = `${capitalize(numberWord(career.length))} roles across ${numberWord(stops.length)} teams, oldest first.`;
+const art = buildMotifArt();
+---
+
+<section class="journey" id="work" aria-labelledby="work-title" data-jy="root">
+  <a class="journey__skip mono" href="#work-also">
+    Skip the route
+  </a>
+
+  <div class="journey__stage" data-jy="stage">
+    <div class="journey__track" data-jy="track">
+      <header class="journey__intro" data-jy="intro" style={`--em:${displayWidthEm('The route')}`}>
+        <p class="journey__eyebrow mono">
+          Work, {firstYear} → {lastYear}
+        </p>
+        <h2 class="journey__title display" id="work-title" data-jy="title">
+          <span>The route</span> <span>so far</span>
+        </h2>
+        <p class="journey__lede">{lede}</p>
+        <p class="journey__note hand">built one stop at a time</p>
+      </header>
+
+      <p class="journey__origin" aria-hidden="true">
+        <span class="mono journey__city">{origin.city}</span>
+        <span class="mono journey__coords">{origin.coords}</span>
+        <span class="hand">{origin.note}</span>
+      </p>
+
+      <ol class="journey__stops">
+        {stops.map((stop) => (
+          <li
+            class:list={['stop', { 'stop--multi': stop.multi }]}
+            id={stop.id}
+            data-jy="stop"
+            data-motif={stop.motif}
+            data-tone={stop.tone}
+            style={`--em:${stop.widthEm}`}
+          >
+            <span class="stop__seg" aria-hidden="true" />
+            <span class="stop__pin" aria-hidden="true" />
+            <article class="stop__card" aria-labelledby={`${stop.id}-h`}>
+              <div class="stop__grid">
+                <p class="stop__meta mono">
+                  <span class="stop__n">{stop.number}</span>
+                  <span>{stop.years}</span>
+                  {!stop.multi && stop.place && <span>{stop.place}</span>}
+                  {!stop.multi && stop.city && <span class="stop__coords">{stop.city.coords}</span>}
+                  {stop.live && (
+                    <span class="stop__now">
+                      <i />
+                      now
+                    </span>
+                  )}
+                </p>
+                <h3 class="stop__org display" id={`${stop.id}-h`} data-jy="org">
+                  {stop.org}
+                </h3>
+
+                {stop.multi ? (
+                  <ol class="stop__roles">
+                    {stop.roles.map((role, index) => (
+                      <li class="role" id={roleAnchor(stop.id, index)} data-jy="role">
+                        <i class="role__rule" aria-hidden="true" />
+                        <p class="role__when mono">
+                          {yearRange(role.start, role.end)}
+                          {role.place ? `, ${role.place}` : ''}
+                        </p>
+                        <p class="role__title">{role.title}</p>
+                        <p class="role__line hand">{role.line}</p>
+                        <p class="role__detail">{role.detail}</p>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <div class="stop__body">
+                    <p class="stop__title">{stop.lead.title}</p>
+                    <p class="stop__line hand">{stop.lead.line}</p>
+                    <p class="stop__detail">{stop.lead.detail}</p>
+                  </div>
+                )}
+
+                <div class="plate" aria-hidden="true">
+                  <span class="plate__cap mono">
+                    fig. {stop.number} · {MOTIF_CAPTIONS[stop.motif]}
+                  </span>
+                  <div class="plate__art">
+                    <svg
+                      class={`m m-${stop.motif}`}
+                      viewBox="0 0 400 300"
+                      preserveAspectRatio={stop.motif === 'rain' ? 'xMidYMid slice' : 'xMidYMid meet'}
+                      focusable="false"
+                    >
+                      {stop.motif === 'clouds' && (
+                        <Fragment>
+                          <path class="m-faint m-dash" d="M24 120H92M298 132H376M180 272H262" />
+                          {art.clouds.shapes.map((cloud) => (
+                            <g class="m-clouds__c">
+                              <g class="m-drift" style={`--dx:${cloud.driftPx}px;--dur:${cloud.driftSeconds}s`}>
+                                <path
+                                  class={`m-cloud m-${cloud.stroke}`}
+                                  d={art.clouds.outline}
+                                  transform={`translate(${cloud.x} ${cloud.y}) scale(${cloud.scale})`}
+                                  vector-effect="non-scaling-stroke"
+                                />
+                                {cloud.flagged && (
+                                  <Fragment>
+                                    <circle class="m-pulse" cx="268" cy="152" r="10" />
+                                    <circle class="m-badge-dot" cx="268" cy="152" r="8" />
+                                    <text class="m-badge" x="268" y="156" text-anchor="middle">
+                                      !
+                                    </text>
+                                  </Fragment>
+                                )}
+                              </g>
+                            </g>
+                          ))}
+                        </Fragment>
+                      )}
+
+                      {stop.motif === 'rain' && (
+                        <Fragment>
+                          {art.rain.map((column) => (
+                            <g class="m-rain__col" style={`--dur:${column.fallSeconds}s;--delay:${column.delaySeconds}s`}>
+                              {column.lines.map((line) => (
+                                <text x={column.x} y={line.y} fill-opacity={line.opacity}>
+                                  {line.text}
+                                </text>
+                              ))}
+                            </g>
+                          ))}
+                          <g class="m-rain__hit">
+                            <rect class="m-rain__box" x="132" y="134" width="190" height="34" rx="6" />
+                            <text class="m-rain__key" x="146" y="155">
+                              api_key = "••••••••"
+                            </text>
+                            <rect class="m-signal" x="134" y="115" width="6" height="6" rx="1" />
+                            <text class="m-rain__tag" x="146" y="121">
+                              secret found
+                            </text>
+                          </g>
+                        </Fragment>
+                      )}
+
+                      {stop.motif === 'scan' && (
+                        <Fragment>
+                          <text x="21" y="40">
+                            10.0.0.0/24
+                          </text>
+                          <g class="m-scan__legend">
+                            <rect class="m-scan__lit is-ok" x="266" y="32" width="9" height="9" rx="2" />
+                            <text x="278" y="40">
+                              ok
+                            </text>
+                            <rect class="m-scan__lit is-low" x="301" y="32" width="9" height="9" rx="2" />
+                            <text x="313" y="40">
+                              low
+                            </text>
+                            <rect class="m-scan__lit is-high" x="342" y="32" width="9" height="9" rx="2" />
+                            <text x="354" y="40">
+                              high
+                            </text>
+                          </g>
+                          <g class="m-scan__cells">
+                            <path class="m-scan__grid" d={art.scan.gridPath} />
+                            {art.scan.cells.map((cell) => (
+                              <rect
+                                class={`m-scan__lit m-scan__cell is-${cell.severity}`}
+                                x={cell.x}
+                                y={cell.y}
+                                width="20"
+                                height="20"
+                                rx="3"
+                                style={`--d:${cell.delaySeconds}s`}
+                              />
+                            ))}
+                          </g>
+                          <g class="m-scan__bar">
+                            <rect class="m-scan__band" x="9" y="54" width="11" height="218" />
+                            <path class="m-scan__line" d="M20 50V276" />
+                          </g>
+                        </Fragment>
+                      )}
+
+                      {stop.motif === 'merge' && (
+                        <Fragment>
+                          <text x="0" y="16">
+                            alerts
+                          </text>
+                          {art.merge.map((wire) => (
+                            <path class="m-merge__in" d={wire.path} pathLength="1" />
+                          ))}
+                          {art.merge.map((wire) => (
+                            <path class="m-merge__pkt" d={wire.path} pathLength="1" style={`--dur:${wire.pulseSeconds}s`} />
+                          ))}
+                          <path class="m-merge__out" d="M288 150H352" pathLength="1" />
+                          <path class="m-merge__pkt is-out" d="M288 150H352" pathLength="1" style="--dur:1.8s" />
+                          <g class="m-merge__node">
+                            <rect x="232" y="130" width="56" height="40" rx="12" />
+                            <text x="260" y="154" text-anchor="middle">
+                              SAL
+                            </text>
+                          </g>
+                          <g class="m-merge__bubble">
+                            <path d="M360 128H388A8 8 0 0 1 396 136V154A8 8 0 0 1 388 162H368L360 170V162A8 8 0 0 1 352 154V136A8 8 0 0 1 360 128Z" />
+                            <g class="m-merge__typing">
+                              <circle cx="365" cy="145" r="2.2" />
+                              <circle cx="374" cy="145" r="2.2" />
+                              <circle cx="383" cy="145" r="2.2" />
+                            </g>
+                          </g>
+                          <text x="374" y="118" text-anchor="middle">
+                            slack
+                          </text>
+                        </Fragment>
+                      )}
+
+                      {stop.motif === 'radar' && (
+                        <Fragment>
+                          <g class="m-radar__grid">
+                            <circle cx="200" cy="150" r="40" />
+                            <circle cx="200" cy="150" r="80" />
+                            <circle cx="200" cy="150" r="120" />
+                            <path d="M68 150H332M200 18V282" />
+                          </g>
+                          <text x="200" y="12" text-anchor="middle">
+                            000
+                          </text>
+                          <text x="342" y="153">
+                            090
+                          </text>
+                          <text x="200" y="297" text-anchor="middle">
+                            180
+                          </text>
+                          <text x="58" y="153" text-anchor="end">
+                            270
+                          </text>
+                          <g class="m-radar__scope">
+                            <g class="m-radar__sweep">
+                              {art.radar.wedges.map((wedge) => (
+                                <path class="m-radar__wedge" d={wedge.path} fill-opacity={wedge.opacity} />
+                              ))}
+                              <path class="m-radar__lead" d="M200 150H320" />
+                            </g>
+                          </g>
+                          {art.radar.blips.map((blip) => (
+                            <circle class="m-radar__blip" cx={blip.x} cy={blip.y} r="2.8" style={`--d:${blip.delaySeconds}s`} />
+                          ))}
+                          <g class="m-radar__threat">
+                            <circle class="m-pulse" cx={art.radar.threat.x} cy={art.radar.threat.y} r="10" />
+                            <circle
+                              class="m-radar__blip is-hot"
+                              cx={art.radar.threat.x}
+                              cy={art.radar.threat.y}
+                              r="4.4"
+                              style={`--d:${art.radar.threat.delaySeconds}s`}
+                            />
+                          </g>
+                          <text class="m-hand" x="262" y="58">
+                            not on my watch
+                          </text>
+                        </Fragment>
+                      )}
+
+                      {stop.motif === 'nodes' && (
+                        <g class="m-nodes__float">
+                          {art.nodes.links.map((link) => (
+                            <line class="m-nodes__e" x1={link.from.x} y1={link.from.y} x2={link.to.x} y2={link.to.y} />
+                          ))}
+                          {art.nodes.hubLinks.map((node) => (
+                            <line class="m-nodes__e is-hub" x1="200" y1="150" x2={node.x} y2={node.y} />
+                          ))}
+                          {art.nodes.points.map((node) => (
+                            <circle class="m-nodes__n" cx={node.x} cy={node.y} r={node.radius} style={`--d:${node.delaySeconds}s`} />
+                          ))}
+                          <circle class="m-pulse" cx="200" cy="150" r="14" />
+                          <circle class="m-nodes__hub" cx="200" cy="150" r="9" />
+                          <path class="m-nodes__arrow" d="M244 112Q232 118 216 136M216 136l1.5-8.5M216 136l8.2-2.6" />
+                          <text class="m-hand" x="247" y="110">
+                            me
+                          </text>
+                        </g>
+                      )}
+
+                      {stop.motif === 'chart' && (
+                        <Fragment>
+                          <path class="m-chart__grid" d="M24 60H376M24 110H376M24 160H376M24 210H376M24 260H376" />
+                          <path class="m-chart__area" d={art.chart.areaPath} />
+                          <path class="m-chart__line" d={art.chart.linePath} pathLength="1" />
+                          {art.chart.events.map((bar) => (
+                            <rect
+                              class="m-chart__ev"
+                              x={bar.x}
+                              y={bar.y}
+                              width="4"
+                              height={bar.height}
+                              rx="2"
+                              style={`--d:${bar.delaySeconds}s`}
+                            />
+                          ))}
+                          <g class="m-chart__end">
+                            <circle class="m-pulse" cx="376" cy="70" r="9" />
+                            <circle class="m-chart__dot" cx="376" cy="70" r="5" />
+                          </g>
+                          <text x="24" y="296">
+                            events
+                          </text>
+                        </Fragment>
+                      )}
+
+                      {stop.motif === 'graph' && (
+                        <Fragment>
+                          <text x={art.graph.columnX.identities} y="20" text-anchor="middle">
+                            identities
+                          </text>
+                          <text x={art.graph.columnX.roles} y="20" text-anchor="middle">
+                            roles
+                          </text>
+                          <text x={art.graph.columnX.resources} y="20" text-anchor="middle">
+                            resources
+                          </text>
+                          {art.graph.edges.map((edge) => (
+                            <path class="m-graph__e" d={edge.path} pathLength="1" data-s={edge.stage} />
+                          ))}
+                          <path class="m-graph__revoked" d={art.graph.revokedPath} pathLength="1" data-s="3" />
+                          <path class="m-graph__trace" d={art.graph.tracePath} pathLength="1" data-s="3" />
+                          {art.graph.identities.map((node) => (
+                            <g class="m-graph__n" data-s={node.stage}>
+                              <circle class="m-graph__id" cx={node.x} cy={node.y} r="9" />
+                              <circle class="m-graph__core" cx={node.x} cy={node.y} r="3" />
+                            </g>
+                          ))}
+                          {art.graph.roles.map((node) => (
+                            <rect
+                              class="m-graph__n m-graph__role"
+                              data-s={node.stage}
+                              x={node.x - 9}
+                              y={node.y - 9}
+                              width="18"
+                              height="18"
+                              rx="5"
+                            />
+                          ))}
+                          {art.graph.resources.map((node) => (
+                            <rect
+                              class="m-graph__n m-graph__res"
+                              data-s={node.stage}
+                              x={node.x - 8}
+                              y={node.y - 8}
+                              width="16"
+                              height="16"
+                              rx="2"
+                            />
+                          ))}
+                          <g class="m-graph__x" data-s="3">
+                            <path d={art.graph.crossPath} />
+                            <text x={art.graph.revokedAt.x + 10} y={art.graph.revokedAt.y - 9}>
+                              revoked
+                            </text>
+                          </g>
+                        </Fragment>
+                      )}
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </li>
+        ))}
+      </ol>
+
+      <div class="journey__terminal" data-jy="terminal" style={`--em:${displayWidthEm(terminal.city)}`}>
+        <p class="mono journey__kicker">Latest stop</p>
+        <p class="journey__terminal-city display">{terminal.city}</p>
+        <p class="mono journey__coords">{terminal.coords}</p>
+        <p class="hand journey__terminal-note">{terminal.note}, still building</p>
+      </div>
+
+      <svg class="journey__plan" data-jy="plan" aria-hidden="true" focusable="false"></svg>
+      <div class="journey__labels" aria-hidden="true">
+        <p class="jy-label jy-label--origin" data-anchor="origin">
+          <span class="mono journey__city">{origin.city}</span>
+          <span class="mono journey__coords">{origin.coords}</span>
+          <span class="hand">{origin.note}</span>
+        </p>
+        {stations.map((station) => (
+          <p class="jy-label" data-anchor={station.anchor}>
+            <span class="mono journey__city">{station.city.city}</span>
+            <span class="mono journey__coords">{station.city.coords}</span>
+          </p>
+        ))}
+      </div>
+    </div>
+
+    <div class="journey__built" data-jy="built" aria-hidden="true">
+      <svg data-jy="built-svg" focusable="false"></svg>
+    </div>
+    <div class="journey__traveler" data-jy="traveler" aria-hidden="true">
+      <i class="journey__dot" />
+      <span class="journey__me hand" data-jy="me">
+        this dot is me
+        <svg viewBox="0 0 28 20" focusable="false">
+          <path d="M2 17C11 17 19 13 24 4M24 4l-.6 7.4M24 4l-7 1.6" />
+        </svg>
+      </span>
+    </div>
+  </div>
+
+  <div class="also" id="work-also" data-jy="also">
+    <div class="also__head">
+      <h3 class="also__h mono">Also</h3>
+      <p class="also__aside hand">the fine print</p>
+    </div>
+    <div class="also__grid">
+      <div class="also__col also__col--patent" data-jy="also-item">
+        <h4 class="also__k mono">Patent</h4>
+        <p class="also__patent display">{patent}</p>
+      </div>
+      <div class="also__col also__col--edu" data-jy="also-item">
+        <h4 class="also__k mono">Education</h4>
+        <ul class="also__list">
+          {education.map((entry) => (
+            <li>
+              <p class="also__school">{entry.school}</p>
+              <p class="also__what">{entry.what}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="also__col also__col--writing" data-jy="also-item">
+        <h4 class="also__k mono">Writing</h4>
+        <ul class="also__list">
+          {writing.map((article) => (
+            <li>
+              <a class="wlink" href={article.href} target="_blank" rel="noopener">
+                <span class="wlink__t">{article.title}</span>
+                <span class="wlink__m mono">
+                  {article.outlet}, {article.year}
+                </span>
+                <svg class="wlink__a" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                  <path d="M4 12L12 4M6 4h6v6" />
+                </svg>
+                <span class="sr-only">(opens in a new tab)</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .journey {
+    --gap: clamp(28px, 3.4vw, 64px);
+    --pad: clamp(20px, 2.2vw, 40px);
+    --band-top: clamp(66px, 9vh, 112px);
+    --rail-top: clamp(140px, 24vh, 270px);
+    --rail-bottom: clamp(18px, 4vh, 44px);
+    --indent: clamp(26px, 3.4vw, 48px);
+    --list-gap: clamp(22px, 3vw, 40px);
+    position: relative;
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  .journey__skip {
+    position: absolute;
+    z-index: 20;
+    left: var(--gutter);
+    top: 16px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--contrast-bg);
+    color: var(--contrast-fg);
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+  }
+  .journey__skip:focus,
+  .journey__skip:focus-visible {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  /* Stack: mobile, reduced motion, no JS */
+  .journey__stage {
+    padding-top: clamp(80px, 13vw, 168px);
+  }
+  .journey__track {
+    max-width: var(--max);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .journey__intro {
+    container-type: inline-size;
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin-bottom: clamp(40px, 7vw, 96px);
+  }
+  .journey__eyebrow {
+    color: var(--fg-2);
+  }
+  .journey__title {
+    margin-top: 0.28em;
+    font-size: min(var(--step-5), calc(96cqi / var(--em)));
+  }
+  .journey__title span {
+    display: block;
+  }
+  .journey__lede {
+    margin-top: clamp(16px, 1.8vw, 26px);
+    max-width: 30ch;
+    font-size: var(--step-1);
+    line-height: 1.3;
+    color: var(--fg-2);
+  }
+  .journey__note {
+    margin-top: 12px;
+    font-size: var(--step-1);
+  }
+  .journey__city {
+    color: var(--fg);
+  }
+  .journey__coords {
+    color: var(--fg-2);
+  }
+
+  .journey__origin,
+  .journey__stops,
+  .journey__terminal {
+    position: relative;
+    z-index: 1;
+    padding-left: var(--indent);
+  }
+  .journey__origin {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+    padding-bottom: var(--list-gap);
+  }
+  .journey__origin .hand {
+    font-size: var(--step-1);
+  }
+  .journey__origin::before,
+  .journey__terminal::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.2em;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+  }
+  .journey__terminal::before {
+    background: var(--accent);
+  }
+  .journey__origin::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: calc(0.2em + 12px);
+    bottom: 0;
+    width: 2px;
+    background: var(--accent);
+  }
+
+  .journey__stops {
+    display: grid;
+    gap: var(--list-gap);
+  }
+  .stop {
+    position: relative;
+  }
+  .stop__seg {
+    position: absolute;
+    left: calc(5px - var(--indent));
+    top: 0;
+    bottom: calc(-1 * var(--list-gap));
+    width: 2px;
+    background: var(--accent);
+    transform-origin: 50% 0;
+  }
+  .stop__pin {
+    position: absolute;
+    left: calc(-1 * var(--indent));
+    top: calc(var(--pad) + 3px);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+  }
+
+  .stop[data-tone='day'] {
+    --card-bg: var(--surface);
+    --card-fg: var(--fg);
+    --card-fg2: var(--fg-2);
+    --m-ink: color-mix(in srgb, var(--fg) 52%, transparent);
+    --m-faint: color-mix(in srgb, var(--fg) 14%, transparent);
+    --m-acc: var(--accent);
+    --hand: color-mix(in oklab, var(--accent) 86%, var(--fg));
+    --edge: color-mix(in srgb, var(--fg) 10%, transparent);
+  }
+  .stop[data-tone='night'] {
+    --card-bg: var(--contrast-bg);
+    --card-fg: var(--contrast-fg);
+    --card-fg2: var(--contrast-muted);
+    --m-ink: color-mix(in srgb, var(--contrast-fg) 55%, transparent);
+    --m-faint: color-mix(in srgb, var(--contrast-fg) 16%, transparent);
+    --m-acc: var(--accent-hot);
+    --hand: color-mix(in oklab, var(--accent-hot) 62%, var(--contrast-fg));
+    --edge: transparent;
+  }
+  .stop[data-tone='warm'] {
+    --card-bg: var(--accent-soft);
+    --card-fg: var(--fg);
+    --card-fg2: var(--fg-2);
+    --m-ink: color-mix(in srgb, var(--fg) 52%, transparent);
+    --m-faint: color-mix(in srgb, var(--fg) 15%, transparent);
+    --m-acc: var(--accent);
+    --hand: color-mix(in oklab, var(--accent) 72%, var(--fg));
+    --edge: transparent;
+  }
+
+  .stop__card {
+    container-type: inline-size;
+    position: relative;
+    padding: var(--pad);
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    color: var(--card-fg);
+    box-shadow: inset 0 0 0 1px var(--edge);
+    overflow: hidden;
+  }
+  .stop__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'meta' 'org' 'plate' 'body';
+    gap: clamp(12px, 1.5vw, 20px);
+  }
+  .stop__meta {
+    grid-area: meta;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    color: var(--card-fg2);
+  }
+  .stop__n {
+    color: var(--card-fg);
+  }
+  .stop__now {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 2px 9px 2px 7px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px currentColor;
+  }
+  .stop__now i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--signal);
+  }
+  .stop__org {
+    grid-area: org;
+    font-size: min(var(--step-5), calc(97cqi / var(--em)), var(--org-cap, var(--step-5)));
+    white-space: nowrap;
+  }
+  .stop__body {
+    grid-area: body;
+    display: grid;
+    align-content: start;
+    gap: 10px;
+  }
+  .stop__title {
+    font-size: var(--step-1);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .stop .hand {
+    color: var(--hand);
+  }
+  .stop__line {
+    font-size: var(--step-1);
+    line-height: 1.12;
+  }
+  .stop__detail {
+    max-width: 46ch;
+    color: var(--card-fg2);
+  }
+
+  .plate {
+    grid-area: plate;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    aspect-ratio: 16 / 10;
+    border-radius: calc(var(--radius) * 0.6);
+    background: color-mix(in srgb, var(--card-fg) 4%, transparent);
+    overflow: hidden;
+  }
+  .plate__cap {
+    padding: 12px 14px 0;
+    color: var(--card-fg2);
+  }
+  .plate__art {
+    position: relative;
+    min-height: 0;
+  }
+  .plate__art > svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  @container (min-width: 520px) {
+    .stop__grid {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+      grid-template-areas: 'meta meta' 'org org' 'body plate';
+      column-gap: clamp(18px, 2.4vw, 40px);
+    }
+    .plate {
+      aspect-ratio: auto;
+      min-height: 220px;
+    }
+  }
+
+  .stop--multi .stop__grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'meta' 'org' 'plate' 'roles';
+  }
+  .stop__roles {
+    grid-area: roles;
+    display: grid;
+    gap: 22px;
+  }
+  .role {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    padding-top: 14px;
+  }
+  .role::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: var(--m-faint);
+  }
+  .role__rule {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: var(--m-acc);
+    transform-origin: 0 50%;
+  }
+  .role__when {
+    color: var(--card-fg2);
+  }
+  .role__title {
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .role__line {
+    font-size: var(--step-1);
+    line-height: 1.1;
+  }
+  .role__detail {
+    color: var(--card-fg2);
+    line-height: 1.45;
+  }
+
+  @container (min-width: 640px) {
+    .stop--multi .stop__roles {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: clamp(16px, 2vw, 32px);
+    }
+    .stop--multi .plate {
+      aspect-ratio: 21 / 8;
+      min-height: 0;
+    }
+  }
+  @container (min-width: 860px) {
+    .stop--multi .stop__grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 3fr);
+      grid-template-areas: 'meta meta' 'org org' 'plate roles';
+    }
+    .stop--multi .plate {
+      aspect-ratio: auto;
+      min-height: 240px;
+    }
+  }
+
+  .journey__terminal {
+    container-type: inline-size;
+    margin-top: var(--list-gap);
+  }
+  .journey__terminal-city {
+    margin-block: 0.3em 0.2em;
+    font-size: min(var(--step-3), calc(96cqi / var(--em)));
+  }
+  .journey__kicker {
+    color: var(--fg-2);
+  }
+  .journey__terminal-note {
+    margin-top: 10px;
+    font-size: var(--step-1);
+  }
+
+  /* Rail layers (shown only in rail mode) */
+  .journey__plan,
+  .journey__labels,
+  .journey__built,
+  .journey__traveler {
+    display: none;
+  }
+  .journey__plan {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 0;
+    max-width: none;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .journey__labels {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .jy-label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    white-space: nowrap;
+    transform: translate(-50%, -100%);
+    opacity: 0.45;
+    transition:
+      opacity 0.5s,
+      transform 0.7s var(--ease-out);
+  }
+  .jy-label.is-reached {
+    opacity: 1;
+    transform: translate(-50%, calc(-100% - 5px));
+  }
+  .jy-label--origin,
+  .jy-label--origin.is-reached {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    opacity: 1;
+    transform: translate(-100%, -50%);
+  }
+  .jy-label--origin .hand {
+    font-size: var(--step-1);
+  }
+  .journey__built {
+    position: absolute;
+    left: 0;
+    top: var(--band-top);
+    width: 0;
+    height: calc(var(--rail-top) - var(--band-top));
+    overflow: hidden;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .journey__built svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: none;
+    overflow: visible;
+  }
+  .journey__traveler {
+    position: absolute;
+    left: 0;
+    top: var(--band-top);
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s;
+  }
+  .journey[data-live] .journey__traveler {
+    opacity: 1;
+  }
+  .journey__dot {
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--bg);
+  }
+  .journey__dot::after {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px var(--accent);
+    opacity: 0;
+  }
+  .journey__me {
+    position: absolute;
+    right: 12px;
+    top: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    white-space: nowrap;
+    font-size: var(--step-1);
+  }
+  .journey__me svg {
+    width: 28px;
+    height: 20px;
+    margin-top: -8px;
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  .journey :global(.jy-tower) {
+    fill: none;
+    stroke: var(--rule);
+    stroke-width: 1;
+  }
+  .journey :global(.jy-plan) {
+    fill: none;
+    stroke: color-mix(in srgb, var(--fg) 28%, transparent);
+    stroke-width: 1.25;
+    stroke-dasharray: 2 7;
+    stroke-linecap: round;
+  }
+  .journey :global(.jy-ring) {
+    fill: var(--bg);
+    stroke: color-mix(in srgb, var(--fg) 40%, transparent);
+    stroke-width: 1.5;
+  }
+  .journey :global(.jy-cable) {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+  .journey :global(.jy-hang) {
+    fill: none;
+    stroke: color-mix(in srgb, var(--accent) 55%, transparent);
+    stroke-width: 1;
+  }
+  .journey :global(.jy-stop) {
+    fill: var(--accent);
+    stroke: var(--bg);
+    stroke-width: 2;
+  }
+  .journey :global(.jy-ch-mask) {
+    padding-block: 0.14em 0.06em;
+    margin-block: -0.14em -0.06em;
+  }
+
+  @media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+    :global(.js) .journey__stage {
+      container-type: inline-size;
+      position: relative;
+      height: 100vh;
+      height: 100svh;
+      padding: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+    :global(.js) .journey[data-live] .journey__stage {
+      overflow: clip;
+    }
+    :global(.js) .journey__track {
+      position: absolute;
+      inset: 0 auto 0 0;
+      display: flex;
+      gap: var(--gap);
+      width: max-content;
+      max-width: none;
+      margin: 0;
+      padding: var(--rail-top) 0 var(--rail-bottom);
+    }
+    :global(.js) .journey[data-live] .journey__track,
+    :global(.js) .journey[data-live] .journey__built svg {
+      will-change: transform;
+    }
+    :global(.js) .journey__intro {
+      flex: none;
+      width: calc(50cqw - var(--gap));
+      max-width: none;
+      margin: 0;
+      padding: 0 clamp(16px, 2.4vw, 40px) 0 var(--gutter);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    :global(.js) .journey__title {
+      font-size: min(var(--step-5), calc(96cqi / var(--em)), 21vh);
+    }
+    :global(.js) .journey__origin,
+    :global(.js) .stop__seg,
+    :global(.js) .stop__pin,
+    :global(.js) .stop__coords {
+      display: none;
+    }
+    :global(.js) .journey__stops {
+      display: flex;
+      gap: var(--gap);
+      padding: 0;
+    }
+    :global(.js) .stop {
+      --w: clamp(600px, 56cqw, 1040px);
+      flex: none;
+      width: var(--w);
+      height: 100%;
+    }
+    :global(.js) .stop--multi {
+      width: min(var(--w) * 1.62, 92cqw);
+    }
+    :global(.js) .stop__card {
+      height: 100%;
+    }
+    :global(.js) .stop__grid {
+      height: 100%;
+      grid-template-rows: auto auto minmax(0, 1fr);
+    }
+    :global(.js) .stop__org {
+      --org-cap: 15vh;
+    }
+    :global(.js) .stop--multi .stop__org {
+      --org-cap: 12vh;
+    }
+    :global(.js) .plate,
+    :global(.js) .stop--multi .plate {
+      min-height: 0;
+      aspect-ratio: auto;
+    }
+    :global(.js) .journey[data-live] .role__rule {
+      transform: scaleX(0);
+      transition: transform 1s var(--ease-out);
+    }
+    :global(.js) .journey[data-live] .role.is-reached .role__rule {
+      transform: scaleX(1);
+    }
+    :global(.js) .journey[data-live] .role.is-reached .role__when {
+      color: var(--hand);
+    }
+    :global(.js) .journey__terminal {
+      flex: none;
+      width: calc(50cqw - var(--gap) / 2);
+      margin: 0;
+      padding: 0 var(--gutter) 0 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    :global(.js) .journey__terminal::before {
+      display: none;
+    }
+    :global(.js) .journey__plan,
+    :global(.js) .journey__labels,
+    :global(.js) .journey__built,
+    :global(.js) .journey__traveler {
+      display: block;
+    }
+  }
+
+  /* Motifs */
+  .m {
+    overflow: visible;
+  }
+  .m text {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    fill: var(--card-fg2);
+  }
+  .m .m-hand {
+    font-family: var(--font-hand);
+    font-weight: 600;
+    font-size: 20px;
+    letter-spacing: 0;
+    text-transform: none;
+    fill: var(--hand);
+    paint-order: stroke;
+    stroke: var(--card-bg);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+  .m-ink {
+    fill: none;
+    stroke: var(--m-ink);
+    stroke-width: 1.6;
+  }
+  .m-acc {
+    fill: none;
+    stroke: var(--m-acc);
+    stroke-width: 2.2;
+  }
+  .m-faint {
+    fill: none;
+    stroke: var(--m-faint);
+    stroke-width: 1.4;
+  }
+  .m-dash {
+    stroke-dasharray: 2 7;
+    stroke-linecap: round;
+  }
+  .m-pulse {
+    fill: none;
+    stroke: var(--m-acc);
+    stroke-width: 1.5;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+  }
+
+  .m-cloud {
+    stroke-linejoin: round;
+  }
+  .m-badge-dot {
+    fill: var(--m-acc);
+  }
+  .m .m-badge {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--card-bg);
+  }
+
+  .m-rain {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, var(--fg) 16%, var(--fg) 84%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, var(--fg) 16%, var(--fg) 84%, transparent);
+  }
+  .m-rain text {
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    fill: var(--m-ink);
+  }
+  .m-rain .m-rain__key {
+    fill: var(--card-fg);
+  }
+  .m-rain .m-rain__tag {
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    fill: var(--m-acc);
+  }
+  .m-rain__box {
+    fill: var(--card-bg);
+    stroke: var(--m-acc);
+    stroke-width: 1.5;
+  }
+  .m-signal {
+    fill: var(--signal);
+  }
+
+  .m-scan__grid {
+    fill: none;
+    stroke: var(--m-faint);
+    stroke-width: 1;
+  }
+  .m-scan__lit.is-ok {
+    fill: var(--m-faint);
+  }
+  .m-scan__lit.is-low {
+    fill: color-mix(in srgb, var(--m-acc) 45%, transparent);
+  }
+  .m-scan__lit.is-high {
+    fill: var(--m-acc);
+  }
+  .m-scan__band {
+    fill: color-mix(in srgb, var(--m-acc) 14%, transparent);
+  }
+  .m-scan__line {
+    stroke: var(--m-acc);
+    stroke-width: 2;
+  }
+  .m-scan__bar {
+    opacity: 0;
+  }
+
+  .m-merge__in {
+    fill: none;
+    stroke: var(--m-ink);
+    stroke-width: 1.3;
+    stroke-dasharray: 1;
+    stroke-linejoin: round;
+  }
+  .m-merge__out {
+    fill: none;
+    stroke: var(--m-acc);
+    stroke-width: 2.4;
+    stroke-dasharray: 1;
+  }
+  .m-merge__pkt {
+    --per: 0.12;
+    fill: none;
+    stroke: var(--m-ink);
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-dasharray: 0 var(--per);
+  }
+  .m-merge__pkt.is-out {
+    --per: 0.5;
+    stroke: var(--m-acc);
+  }
+  .m-merge__node rect {
+    fill: var(--card-bg);
+    stroke: var(--m-acc);
+    stroke-width: 2;
+  }
+  .m .m-merge__node text {
+    font-size: 12px;
+    font-weight: 600;
+    fill: var(--card-fg);
+  }
+  .m-merge__bubble path {
+    fill: var(--m-acc);
+  }
+  .m-merge__typing circle {
+    fill: var(--card-bg);
+  }
+
+  .m-radar__grid {
+    fill: none;
+    stroke: var(--m-faint);
+    stroke-width: 1.2;
+  }
+  .m-radar__sweep {
+    transform-box: view-box;
+    transform-origin: 200px 150px;
+    transform: rotate(-35deg);
+  }
+  .m-radar__wedge {
+    fill: var(--m-acc);
+  }
+  .m-radar__lead {
+    stroke: var(--m-acc);
+    stroke-width: 2;
+  }
+  .m-radar__blip {
+    fill: var(--m-ink);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .m-radar__blip.is-hot {
+    fill: var(--m-acc);
+  }
+
+  .m-nodes__e {
+    stroke: var(--m-faint);
+    stroke-width: 1.2;
+  }
+  .m-nodes__e.is-hub {
+    stroke: color-mix(in srgb, var(--m-acc) 70%, transparent);
+    stroke-width: 1.5;
+  }
+  .m-nodes__n {
+    fill: var(--card-bg);
+    stroke: var(--m-ink);
+    stroke-width: 1.5;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .m-nodes__hub {
+    fill: var(--m-acc);
+  }
+  .m-nodes__arrow {
+    fill: none;
+    stroke: var(--hand);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  .m-chart__grid {
+    stroke: var(--m-faint);
+    stroke-width: 1;
+  }
+  .m-chart__area {
+    fill: color-mix(in srgb, var(--m-acc) 9%, transparent);
+  }
+  .m-chart__line {
+    fill: none;
+    stroke: var(--m-acc);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+  }
+  .m-chart__ev {
+    fill: var(--m-ink);
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  .m-chart__dot {
+    fill: var(--m-acc);
+    stroke: var(--card-bg);
+    stroke-width: 2;
+  }
+
+  .m-graph__e {
+    fill: none;
+    stroke: var(--m-ink);
+    stroke-width: 1.3;
+    stroke-dasharray: 1;
+    stroke-dashoffset: var(--ghost, 0);
+    opacity: calc(1 - var(--ghost, 0));
+    transition:
+      stroke-dashoffset 1.1s var(--ease-out),
+      opacity 0.4s;
+  }
+  .m-graph__n {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: calc(1 - 0.84 * var(--ghost, 0));
+    transform: scale(calc(1 - 0.3 * var(--ghost, 0)));
+    transition:
+      opacity 0.6s,
+      transform 0.8s var(--ease-out);
+  }
+  .m-graph__id {
+    fill: var(--card-bg);
+    stroke: var(--m-ink);
+    stroke-width: 1.6;
+  }
+  .m-graph__core {
+    fill: var(--m-ink);
+  }
+  .m-graph__role {
+    fill: var(--card-bg);
+    stroke: var(--m-acc);
+    stroke-width: 2;
+  }
+  .m-graph__res {
+    fill: var(--m-faint);
+    stroke: var(--m-ink);
+    stroke-width: 1.2;
+  }
+  .m-graph__revoked {
+    fill: none;
+    stroke: var(--m-acc);
+    stroke-width: 1.4;
+    stroke-dasharray: 0.025 0.02;
+    transition: opacity 0.6s;
+  }
+  .m-graph__trace {
+    fill: none;
+    stroke: var(--m-acc);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: opacity 0.6s;
+  }
+  .m-graph__x {
+    transition: opacity 0.6s;
+  }
+  .m-graph__x path {
+    stroke: var(--m-acc);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .m .m-graph__x text {
+    fill: var(--m-acc);
+    paint-order: stroke;
+    stroke: var(--card-bg);
+    stroke-width: 3px;
+  }
+  .stop[data-stage='0'] :is(.m-graph__n, .m-graph__e),
+  .stop[data-stage='1'] :is(.m-graph__n, .m-graph__e):not([data-s='1']),
+  .stop[data-stage='2'] :is(.m-graph__n, .m-graph__e)[data-s='3'] {
+    --ghost: 1;
+  }
+  .stop:is([data-stage='0'], [data-stage='1'], [data-stage='2']) :is(.m-graph__revoked, .m-graph__trace, .m-graph__x) {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .journey__dot::after {
+      animation: jy-ring 2.4s var(--ease-out) infinite;
+    }
+    .is-live .m-drift {
+      animation: jy-drift var(--dur) ease-in-out infinite alternate;
+    }
+    .is-live .m-pulse {
+      animation: jy-ring 2.6s var(--ease-out) infinite;
+    }
+    .is-live .m-rain__col {
+      animation: jy-fall var(--dur) linear var(--delay) infinite;
+    }
+    .is-live .m-scan__cell {
+      animation: jy-lit 7s linear var(--d) infinite backwards;
+    }
+    .is-live .m-scan__bar {
+      animation: jy-bar 7s linear infinite;
+    }
+    .is-live .m-merge__pkt {
+      animation: jy-flow var(--dur) linear infinite;
+    }
+    .is-live .m-merge__typing circle {
+      animation: jy-type 1.4s ease-in-out infinite;
+    }
+    .is-live .m-merge__typing circle:nth-child(2) {
+      animation-delay: 0.18s;
+    }
+    .is-live .m-merge__typing circle:nth-child(3) {
+      animation-delay: 0.36s;
+    }
+    .is-live .m-radar__sweep {
+      animation: jy-spin 5s linear infinite;
+    }
+    .is-live .m-radar__blip {
+      animation: jy-blip 5s linear var(--d) infinite;
+    }
+    .is-live .m-nodes__float {
+      animation: jy-float 7s ease-in-out infinite alternate;
+    }
+    .is-live .m-nodes__n {
+      animation: jy-breathe 3.6s ease-in-out var(--d) infinite;
+    }
+    .is-live .m-chart__ev {
+      animation: jy-ev 1.8s ease-in-out var(--d) infinite alternate;
+    }
+    .is-live .m-graph__trace {
+      stroke-dasharray: 0.08 0.92;
+      animation: jy-trace 2.6s linear infinite;
+    }
+    .is-live .m-graph__x path {
+      animation: jy-blink 2.2s ease-in-out infinite;
+    }
+  }
+  @keyframes jy-ring {
+    from {
+      transform: scale(0.6);
+      opacity: 0.9;
+    }
+    to {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+  @keyframes jy-drift {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(var(--dx));
+    }
+  }
+  @keyframes jy-fall {
+    from {
+      transform: translateY(-288px);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  @keyframes jy-lit {
+    0% {
+      opacity: 0;
+    }
+    3%,
+    80% {
+      opacity: 1;
+    }
+    92%,
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes jy-bar {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    65% {
+      transform: translateX(374px);
+      opacity: 1;
+    }
+    70%,
+    100% {
+      transform: translateX(374px);
+      opacity: 0;
+    }
+  }
+  @keyframes jy-flow {
+    from {
+      stroke-dashoffset: 0;
+    }
+    to {
+      stroke-dashoffset: calc(-1 * var(--per));
+    }
+  }
+  @keyframes jy-type {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  @keyframes jy-spin {
+    from {
+      transform: rotate(-35deg);
+    }
+    to {
+      transform: rotate(325deg);
+    }
+  }
+  @keyframes jy-blip {
+    0% {
+      opacity: 1;
+      transform: scale(1.7);
+    }
+    12% {
+      transform: scale(1);
+    }
+    45%,
+    100% {
+      opacity: 0.22;
+      transform: scale(1);
+    }
+  }
+  @keyframes jy-float {
+    from {
+      transform: translateY(-4px);
+    }
+    to {
+      transform: translateY(4px);
+    }
+  }
+  @keyframes jy-breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.3);
+    }
+  }
+  @keyframes jy-ev {
+    from {
+      transform: scaleY(0.35);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+  @keyframes jy-trace {
+    from {
+      stroke-dashoffset: 0.08;
+    }
+    to {
+      stroke-dashoffset: -0.92;
+    }
+  }
+  @keyframes jy-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  /* Also */
+  .also {
+    max-width: var(--max);
+    margin-inline: auto;
+    padding: clamp(64px, 10vw, 140px) var(--gutter) clamp(72px, 11vw, 160px);
+  }
+  .also__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .also__aside {
+    font-size: var(--step-1);
+  }
+  .also__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(32px, 4vw, 64px) clamp(20px, 3vw, 48px);
+    padding-top: clamp(24px, 3.4vw, 44px);
+  }
+  .also__col {
+    grid-column: 1 / -1;
+    display: grid;
+    align-content: start;
+    gap: 14px;
+  }
+  .also__k {
+    color: var(--fg-2);
+  }
+  .also__patent {
+    font-size: var(--step-2);
+    line-height: 0.96;
+    overflow-wrap: break-word;
+  }
+  .also__list > li {
+    padding-block: 12px;
+  }
+  .also__list > li:first-child {
+    padding-top: 0;
+  }
+  .also__list > li + li {
+    border-top: 1px solid var(--rule);
+  }
+  .also__school {
+    font-weight: 600;
+  }
+  .also__what {
+    color: var(--fg-2);
+  }
+  .wlink {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 14px;
+  }
+  .wlink__t {
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .wlink__m {
+    grid-column: 1;
+    color: var(--fg-2);
+  }
+  .wlink__a {
+    grid-column: 2;
+    grid-row: 1;
+    width: 16px;
+    height: 16px;
+    margin-top: 4px;
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    transition: transform 0.5s var(--ease-out);
+  }
+  .wlink:hover .wlink__t {
+    color: var(--accent);
+  }
+  .wlink:hover .wlink__a,
+  .wlink:focus-visible .wlink__a {
+    transform: translate(3px, -3px);
+  }
+  @media (min-width: 640px) {
+    .also__col--edu,
+    .also__col--writing {
+      grid-column: span 6;
+    }
+  }
+  @media (min-width: 1024px) {
+    .also__col--patent {
+      grid-column: span 5;
+    }
+    .also__col--edu {
+      grid-column: span 3;
+    }
+    .also__col--writing {
+      grid-column: span 4;
+    }
+  }
+</style>
+
+<script>
+  import { whenIdle } from '../../lib/motion';
+  import { initJourney } from './journey.client';
+  whenIdle(initJourney);
+</script>

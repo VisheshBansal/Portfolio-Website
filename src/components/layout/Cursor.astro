@@ -1,0 +1,122 @@
+---
+/**
+ * A cursor for mouse users: a dot on the pointer and a ring that trails it, swelling over anything clickable. It inverts
+ * whatever is under it, so it reads on fog, night and the red reel alike. Touch, reduced motion and forced colours keep
+ * the native cursor.
+ */
+---
+
+<div class="cursor" aria-hidden="true" data-cursor>
+  <div class="cursor__ring" data-cursor-ring>
+    <span class="cursor__disc"></span>
+    <span class="cursor__label mono" data-cursor-label></span>
+  </div>
+  <div class="cursor__dot" data-cursor-dot>
+    <span class="cursor__point"></span>
+  </div>
+</div>
+
+<style>
+  .cursor {
+    display: none;
+  }
+  :global(html.has-cursor) .cursor {
+    display: block;
+  }
+  :global(html.has-cursor),
+  :global(html.has-cursor *) {
+    cursor: none !important;
+  }
+  :global(html.has-cursor)
+    :global(
+      :is(input:not([type='checkbox'], [type='radio'], [type='submit'], [type='button']), textarea, select, [contenteditable='true'])
+    ) {
+    cursor: auto !important;
+  }
+
+  /* GSAP moves the outer boxes; the inner shapes take the state changes, so the two transforms never fight. */
+  .cursor__ring,
+  .cursor__dot {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 300;
+    pointer-events: none;
+    mix-blend-mode: difference;
+    transition: opacity 0.2s;
+  }
+  .cursor__disc {
+    position: absolute;
+    left: -18px;
+    top: -18px;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid #fff;
+    border-radius: 50%;
+    transition:
+      transform 0.4s var(--ease-out),
+      background-color 0.25s;
+  }
+  .cursor__label {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #000;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .cursor__point {
+    position: absolute;
+    left: -3px;
+    top: -3px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  .cursor[data-state='hover'] .cursor__disc {
+    transform: scale(1.8);
+    background: #fff;
+  }
+  .cursor[data-state='label'] .cursor__disc {
+    transform: scale(2.4);
+    background: #fff;
+  }
+  .cursor[data-state='label'] .cursor__label {
+    opacity: 1;
+  }
+  .cursor:is([data-state='hover'], [data-state='label']) .cursor__point {
+    transform: scale(0);
+  }
+  .cursor[data-pressed] .cursor__disc {
+    scale: 0.82;
+  }
+  .cursor:is([data-state='typing'], [data-away]) :is(.cursor__ring, .cursor__dot) {
+    opacity: 0;
+  }
+
+  @media (forced-colors: active) {
+    :global(html.has-cursor) .cursor {
+      display: none;
+    }
+    :global(html.has-cursor),
+    :global(html.has-cursor *) {
+      cursor: auto !important;
+    }
+  }
+  @media print {
+    .cursor {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { initCursor } from './cursor.client';
+  initCursor();
+</script>

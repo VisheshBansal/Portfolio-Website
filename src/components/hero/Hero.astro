@@ -1,0 +1,411 @@
+---
+/**
+ * Hero: the Golden Gate photo with the name set in the fog, layered behind the subject cut-out.
+ * Everything aspect-dependent comes from `scenes`, the single source of truth for art direction.
+ */
+import ResponsivePicture, { type PictureVariant } from '../media/ResponsivePicture.astro';
+import { heroImages } from '../../lib/assets';
+import { WIDTHS } from '../../lib/images';
+import { person } from '../../data/site';
+import { heroLines } from '../../data/copy';
+import type { HeroSceneClient, Point } from './types';
+
+interface HeroScene {
+  readonly media?: string;
+  readonly photo: string;
+  readonly cutout: string;
+  readonly widths: readonly number[];
+  /** object-position of the photo, as fractions. */
+  readonly objectPosition: Point;
+  /** Transform origin for the scroll push-in, as fractions of the viewport. */
+  readonly focus: Point;
+  /** Where each handwritten note points, in image space (fractions of the photo). */
+  readonly anchors: HeroSceneClient['anchors'];
+}
+
+/** Keep in sync with the `@media (max-aspect-ratio: 4/5)` block in the styles below. */
+const PORTRAIT_MEDIA = '(max-aspect-ratio: 4/5)';
+
+const scenes: readonly HeroScene[] = [
+  {
+    media: PORTRAIT_MEDIA,
+    photo: 'portrait',
+    cutout: 'portrait-cutout',
+    widths: WIDTHS.portrait,
+    objectPosition: [0.24, 0],
+    focus: [0.33, 0.42],
+    anchors: { me: [0.37, 0.37] },
+  },
+  {
+    photo: 'landscape',
+    cutout: 'landscape-cutout',
+    widths: WIDTHS.fullBleed,
+    objectPosition: [0.5, 0.28],
+    focus: [0.64, 0.65],
+    anchors: { me: [0.667, 0.575], bridge: [0.698, 0.3] },
+  },
+];
+
+const variants = (layer: 'photo' | 'cutout'): PictureVariant[] =>
+  scenes.map((scene) => ({ image: heroImages.get(scene[layer]), widths: scene.widths, media: scene.media }));
+
+const clientScenes: HeroSceneClient[] = scenes.map((scene) => {
+  const photo = heroImages.get(scene.photo);
+  return { media: scene.media ?? null, aspect: photo.width / photo.height, objectPosition: scene.objectPosition, anchors: scene.anchors };
+});
+
+const percent = ([x, y]: Point) => `${x * 100}% ${y * 100}%`;
+const [portrait, landscape] = scenes as [HeroScene, HeroScene];
+const sceneVars = [
+  `--pos-portrait: ${percent(portrait.objectPosition)}`,
+  `--pos-landscape: ${percent(landscape.objectPosition)}`,
+  `--focus-portrait: ${percent(portrait.focus)}`,
+  `--focus-landscape: ${percent(landscape.focus)}`,
+].join('; ');
+---
+
+<section class="hero" id="top" style={sceneVars} data-hero data-scenes={JSON.stringify(clientScenes)} aria-label={person.name}>
+  <div class="hero__scene" data-scene>
+    <div class="hero__settle" data-settle>
+      <div class="hero__parallax" data-parallax>
+        <ResponsivePicture
+          variants={variants('photo')}
+          alt={`${person.name} in front of the Golden Gate Bridge on a foggy day`}
+          pictureClass="hero__layer"
+          class="hero__img"
+          fetchpriority="high"
+          decoding="async"
+          data-hero-photo
+        />
+        <canvas class="hero__fog" data-fog="ambient" aria-hidden="true"></canvas>
+        <div class="hero__name-wrap" data-name-wrap>
+          <h1 class="hero__name display" data-name data-intro>
+            <span class="mask-line">
+              <span data-chars>{person.first}</span>
+            </span>
+            <span class="mask-line">
+              <span data-chars>{person.last}</span>
+            </span>
+          </h1>
+        </div>
+        <ResponsivePicture
+          variants={variants('cutout')}
+          alt=""
+          pictureClass="hero__layer"
+          class="hero__img"
+          decoding="async"
+          aria-hidden="true"
+        />
+        <div class="hero__notes" data-notes data-intro aria-hidden="true">
+          <div class="note note--me" data-note="me">
+            <svg class="note__arrow" viewBox="0 0 150 96" fill="none">
+              <path d="M140 10 C 108 6, 64 26, 26 78" />
+              <path d="M26 78 L 27 54 M26 78 L 48 72" />
+            </svg>
+            <p class="note__text hand">
+              that's me<span>the orange one is the bridge</span>
+            </p>
+          </div>
+          <div class="note note--bridge" data-note="bridge">
+            <svg class="note__arrow" viewBox="0 0 150 70" fill="none">
+              <path d="M144 34 C 110 12, 58 14, 12 44" />
+              <path d="M12 44 L 34 44 M12 44 L 26 24" />
+            </svg>
+            <p class="note__text hand">1937. still holding up.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__fade" aria-hidden="true"></div>
+
+  <div class="hero__copy-wrap" data-copy-wrap>
+    <div class="hero__copy">
+      <p class="hero__tagline" data-intro>
+        Builder at heart.
+      </p>
+      <p class="hero__typed mono" data-intro>
+        <span class="hero__prompt">{person.first}</span>
+        <span data-typewriter data-lines={JSON.stringify(heroLines)}>
+          {heroLines[0]}
+        </span>
+        <i class="hero__caret" aria-hidden="true"></i>
+      </p>
+    </div>
+  </div>
+
+  <div class="hero__meta mono" data-meta-wrap>
+    <span data-intro>
+      <i class="hero__live" aria-hidden="true"></i>Building BalkanID · {person.location.city}{' '}
+      <time data-clock data-timezone={person.timezone}></time>
+    </span>
+    <span data-intro class="hero__scroll">
+      Scroll
+    </span>
+  </div>
+
+  <canvas class="hero__fog hero__fog--cover" data-fog="cover" aria-hidden="true"></canvas>
+  <div class="hero__veil" data-veil aria-hidden="true"></div>
+</section>
+
+<style>
+  .hero {
+    --pos: var(--pos-landscape);
+    --focus: var(--focus-landscape);
+    --mx: 0;
+    --my: 0;
+    --on-photo: #14202b;
+    --photo-accent: #c0362c;
+    --name-size: clamp(3.6rem, 9.4vw, 11.5rem);
+    --name-block: calc(var(--name-size) * 0.98);
+    position: relative;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    background: var(--bg);
+    isolation: isolate;
+  }
+  @media (max-aspect-ratio: 4/5) {
+    .hero {
+      --pos: var(--pos-portrait);
+      --focus: var(--focus-portrait);
+      --name-size: 22vw;
+    }
+  }
+  .hero__scene,
+  .hero__settle,
+  .hero__parallax,
+  :global(.hero__layer) {
+    position: absolute;
+    inset: 0;
+  }
+  .hero__scene,
+  .hero__settle {
+    transform-origin: var(--focus);
+    will-change: transform;
+  }
+  .hero__parallax {
+    inset: -2%;
+    transform: translate3d(calc(var(--mx) * -10px), calc(var(--my) * -6px), 0);
+  }
+  :global(.hero__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--pos);
+  }
+  .hero__fog {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .hero__fog--cover {
+    z-index: 6;
+    inset: -3px;
+    width: calc(100% + 6px);
+    height: calc(100% + 6px);
+  }
+
+  .hero__name-wrap {
+    position: absolute;
+    left: calc(var(--gutter) + 2%);
+    top: 14%;
+    transform: translate3d(calc(var(--mx) * 18px), calc(var(--my) * 9px), 0);
+  }
+  .hero__name {
+    font-size: var(--name-size);
+    color: var(--photo-accent);
+    display: flex;
+    gap: 0.22em;
+  }
+  @media (max-width: 1000px) {
+    .hero {
+      --name-size: min(19vw, 15vh);
+      --name-block: calc(var(--name-size) * 1.74);
+    }
+    .hero__name {
+      flex-direction: column;
+      gap: 0;
+      line-height: 0.84;
+    }
+  }
+
+  .hero__notes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .note {
+    --arrow: clamp(96px, 9vw, 150px);
+    position: absolute;
+    left: var(--x, -999px);
+    top: var(--y, -999px);
+  }
+  .note__arrow {
+    position: absolute;
+    width: var(--arrow);
+    max-width: none;
+    height: auto;
+    overflow: visible;
+  }
+  .note__arrow path {
+    stroke: var(--photo-accent);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .note--me .note__arrow {
+    left: calc(var(--arrow) * -0.17);
+    bottom: calc(var(--arrow) * -0.17);
+  }
+  .note--bridge .note__arrow {
+    left: calc(var(--arrow) * -0.08);
+    top: calc(var(--arrow) * -0.29);
+  }
+  .note__text {
+    position: absolute;
+    white-space: nowrap;
+    font-size: clamp(1.4rem, 1rem + 1.1vw, 2.3rem);
+    color: var(--photo-accent);
+    text-shadow:
+      0 0 14px rgb(234 240 248 / 0.9),
+      0 0 2px rgb(234 240 248 / 0.9);
+    transform: rotate(-4deg);
+  }
+  .note__text span {
+    display: block;
+    font-size: 0.62em;
+    font-weight: 500;
+    color: var(--on-photo);
+    margin-top: 0.1em;
+  }
+  .note--me .note__text {
+    left: calc(var(--arrow) * 0.78);
+    bottom: calc(var(--arrow) * 0.5);
+  }
+  .note--bridge .note__text {
+    left: calc(var(--arrow) * 0.9);
+    top: calc(var(--arrow) * -0.3);
+    transform: rotate(3deg);
+  }
+
+  .hero__fade {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent 72%, color-mix(in srgb, var(--bg) 65%, transparent) 87%, var(--bg) 99%);
+  }
+
+  .hero__copy-wrap {
+    position: absolute;
+    z-index: 3;
+    left: calc(var(--gutter) + 2.3%);
+    top: calc(14% + var(--name-block) + 0.4rem);
+    transform: translate3d(calc(var(--mx) * 12px), calc(var(--my) * 6px), 0);
+    color: var(--on-photo);
+  }
+  .hero__tagline {
+    font-size: var(--step-2);
+    font-weight: 650;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+  .hero__typed {
+    margin-top: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    min-height: 1.6em;
+  }
+  .hero__prompt {
+    color: var(--photo-accent);
+  }
+  .hero__caret {
+    width: 0.55em;
+    height: 1.1em;
+    background: var(--photo-accent);
+    animation: hero-caret 1s steps(1) infinite;
+  }
+  @keyframes hero-caret {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .hero__meta {
+    position: absolute;
+    z-index: 3;
+    left: var(--gutter);
+    right: var(--gutter);
+    bottom: clamp(18px, 3.4vh, 36px);
+    display: flex;
+    justify-content: space-between;
+    color: var(--fg);
+  }
+  .hero__live {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 10px;
+    vertical-align: 1px;
+    animation: hero-live 2.4s ease-out infinite;
+  }
+  @keyframes hero-live {
+    from {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent);
+    }
+    to {
+      box-shadow: 0 0 0 9px transparent;
+    }
+  }
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    background: var(--bg);
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  @media (max-aspect-ratio: 4/5) {
+    .hero__name-wrap {
+      left: var(--gutter);
+      top: 9%;
+    }
+    .hero__copy-wrap {
+      top: auto;
+      bottom: 10%;
+      left: var(--gutter);
+      right: var(--gutter);
+      color: var(--fg);
+    }
+    .hero__scroll,
+    .note--bridge {
+      display: none;
+    }
+    .note--me .note__text {
+      font-size: 1.5rem;
+    }
+    .note--me .note__text span {
+      white-space: normal;
+      width: 8.5em;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__live,
+    .hero__caret {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { initHero } from './hero.client';
+  initHero();
+</script>

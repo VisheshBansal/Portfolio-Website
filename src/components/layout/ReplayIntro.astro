@@ -1,0 +1,26 @@
+<button type="button" class="replay mono" data-replay-intro>
+  Replay intro
+</button>
+
+<style>
+  .replay {
+    position: fixed;
+    z-index: 80;
+    right: 14px;
+    bottom: 14px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--fg);
+    font-size: 10px;
+  }
+</style>
+
+<script>
+  import { query } from '../../lib/dom';
+  import { replayIntro } from '../../lib/intro';
+  query('[data-replay-intro]').addEventListener('click', replayIntro);
+</script>

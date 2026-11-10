@@ -1,0 +1,142 @@
+---
+import { manifesto } from '../../data/copy';
+---
+
+<section class="manifesto" id="about" data-manifesto aria-labelledby="manifesto-title">
+  <div class="manifesto__grid wrap">
+    <h2 class="manifesto__title display" id="manifesto-title" data-manifesto-title>
+      {manifesto.title}
+    </h2>
+    <div class="manifesto__body">
+      {manifesto.body.map((paragraph) => (
+        <p class="manifesto__paragraph" data-manifesto-reveal>
+          {paragraph}
+        </p>
+      ))}
+      <p class="manifesto__oath" data-manifesto-reveal>
+        {manifesto.oath[0]}
+        <span class="manifesto__twist">
+          {manifesto.oath[1]}
+          <svg class="manifesto__scribble" viewBox="0 0 300 24" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M4 16 C 60 6, 120 22, 180 12 S 270 8, 296 14" />
+          </svg>
+        </span>
+      </p>
+      <a class="manifesto__cta mono" href="#contact" data-manifesto-reveal>
+        <span aria-hidden="true">[</span>
+        <b>Request access</b>
+        <span aria-hidden="true">]</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .manifesto {
+    padding: clamp(110px, 18vh, 220px) 0;
+  }
+  .manifesto__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(32px, 6vw, 110px);
+    align-items: center;
+  }
+  .manifesto__title {
+    font-size: clamp(3.4rem, 8.6vw, 10rem);
+    line-height: 0.88;
+    color: var(--accent);
+  }
+  .manifesto__body {
+    display: grid;
+    gap: 1.4rem;
+    max-width: 34rem;
+  }
+  .manifesto__paragraph {
+    font-size: var(--step-1);
+    line-height: 1.45;
+    color: var(--fg-2);
+  }
+  .manifesto__oath {
+    font-size: var(--step-1);
+    line-height: 1.4;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    color: var(--fg);
+  }
+  .manifesto__twist {
+    position: relative;
+    display: inline-block;
+    color: var(--accent);
+  }
+  .manifesto__scribble {
+    position: absolute;
+    left: -2%;
+    bottom: -0.38em;
+    width: 104%;
+    max-width: none;
+    height: 0.5em;
+    overflow: visible;
+  }
+  .manifesto__scribble path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .manifesto__cta {
+    justify-self: start;
+    display: inline-flex;
+    gap: 0.6em;
+    align-items: center;
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--fg);
+  }
+  .manifesto__cta b {
+    font-weight: 500;
+  }
+  .manifesto__cta span {
+    color: var(--accent);
+    transition: transform 0.5s var(--ease-out);
+  }
+  .manifesto__cta:hover span:first-child {
+    transform: translateX(-6px);
+  }
+  .manifesto__cta:hover span:last-child {
+    transform: translateX(6px);
+  }
+
+  @media (max-width: 860px) {
+    .manifesto__grid {
+      grid-template-columns: 1fr;
+    }
+    .manifesto__title {
+      font-size: 15vw;
+    }
+  }
+</style>
+
+<script>
+  import { gsap, reducedMotion, fontsReady } from '../../lib/motion';
+  import { query, queryAll } from '../../lib/dom';
+  import { drawStrokes, primeStrokes } from '../../lib/strokes';
+  import { RISE_FROM, splitMaskedLines } from '../../lib/text';
+
+  const TRIGGER_START = 'top 70%';
+
+  async function animateManifesto(): Promise<void> {
+    await fontsReady();
+    const section = query('[data-manifesto]');
+    const title = splitMaskedLines(query('[data-manifesto-title]', section));
+    const scribble = queryAll<SVGPathElement>('.manifesto__scribble path', section);
+    primeStrokes(scribble);
+
+    gsap
+      .timeline({ scrollTrigger: { trigger: section, start: TRIGGER_START } })
+      .from(title.lines, { ...RISE_FROM, duration: 1.1, stagger: 0.09, ease: 'expo.out', onComplete: () => title.revert() })
+      .from(queryAll('[data-manifesto-reveal]', section), { y: 26, autoAlpha: 0, duration: 1, stagger: 0.12, ease: 'expo.out' }, 0.25)
+      .add(drawStrokes(scribble), 1);
+  }
+
+  if (!reducedMotion) void animateManifesto();
+</script>

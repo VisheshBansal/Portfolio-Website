@@ -1,0 +1,303 @@
+---
+/**
+ * Off the clock: films, books, music and flights said outright, then dealt as cinema tickets. Every ticket opens an email
+ * whose subject asks its question in the visitor's voice, and a few also play on the page: the travel ticket spins
+ * through the places on the globe, the Ferrari ticket revs, out loud, to its answer, and the music ticket plays the
+ * top track from the site's Last.fm endpoint when it has one.
+ */
+import { icebreakers as copy } from '../../data/copy';
+import { person } from '../../data/site';
+import { displayWidthEm } from '../../lib/anton';
+import { padNumber } from '../../lib/format';
+
+/** Tickets lie a little askew, as if dropped on a table; hover straightens them. */
+const TILTS = [-1.6, 1.2, -0.7, 1.8, -1.3, 0.8];
+const titleEm = Math.max(...copy.title.map((line) => displayWidthEm(line)));
+const inbox = `mailto:${person.email}`;
+const mailto = (subject: string) => `${inbox}?subject=${encodeURIComponent(`${copy.subjectPrefix} ${subject}`)}`;
+---
+
+<section id="icebreakers" class="icebreakers" aria-labelledby="icebreakers-title" data-icebreakers>
+  <div class="wrap">
+    <header class="icebreakers__head">
+      <p class="icebreakers__kicker mono">{copy.kicker}</p>
+      <h2 id="icebreakers-title" class="icebreakers__title display" style={`--em: ${titleEm}`} data-icebreakers-title>
+        {copy.title.map((line) => (
+          <span class="icebreakers__line">{line}</span>
+        ))}
+      </h2>
+      <p class="icebreakers__note hand" data-icebreakers-reveal>
+        {copy.note}
+      </p>
+    </header>
+
+    <p class="icebreakers__lead mono" data-icebreakers-reveal>
+      {copy.lead}
+    </p>
+    <ul class="icebreakers__deck" role="list" data-icebreakers-deck>
+      {copy.tickets.map((ticket, index) => (
+        <li class="icebreakers__slot">
+          <div
+            class="ticket"
+            style={`--ticket-bg: ${ticket.tone.background}; --ticket-fg: ${ticket.tone.foreground}; --tilt: ${TILTS[index % TILTS.length] ?? 0}deg`}
+            data-ticket
+            data-play={ticket.play}
+            data-admit={ticket.play && copy[ticket.play].admit}
+            data-answer={ticket.play === 'rev' ? copy.rev.answer : undefined}
+            data-inbox={ticket.play === 'roll' || ticket.play === 'repeat' ? inbox : undefined}
+            data-subject={
+              ticket.play === 'roll' || ticket.play === 'repeat' ? `${copy.subjectPrefix} ${copy[ticket.play].subject}` : undefined
+            }
+            data-repeat={
+              ticket.play === 'repeat'
+                ? JSON.stringify({ by: copy.repeat.by, plays: copy.repeat.plays, windows: copy.repeat.windows })
+                : undefined
+            }
+          >
+            <div class="ticket__main">
+              <span class="ticket__admit mono" aria-hidden="true" data-ticket-admit>
+                {`${copy.admit} · ${ticket.topic}`}
+              </span>
+              {/* One link per ticket, stretched over the whole card; a play button sits above it. */}
+              <a class="ticket__link display" href={mailto(ticket.subject)} data-ticket-link>
+                <span class="ticket__text" data-ticket-text>
+                  {ticket.prompt}
+                </span>
+                <span class="sr-only">{` ${copy.opens} ${person.first}.`}</span>
+              </a>
+            </div>
+            <div class="ticket__stub">
+              <span class="ticket__number mono" aria-hidden="true">{`No. ${padNumber(index + 1)}`}</span>
+              {ticket.play && (
+                <button
+                  type="button"
+                  class="ticket__play mono"
+                  aria-label={copy[ticket.play].aria}
+                  aria-pressed={ticket.play === 'roll' ? undefined : 'false'}
+                  hidden={ticket.play === 'repeat'}
+                  data-ticket-play
+                >
+                  {copy[ticket.play].label}
+                  <span aria-hidden="true">{ticket.play === 'repeat' ? '▸' : '↻'}</span>
+                </button>
+              )}
+              {/* The music ticket keeps its Send until the Last.fm endpoint answers. */}
+              {(!ticket.play || ticket.play === 'repeat') && (
+                <span class="ticket__send mono" aria-hidden="true" data-ticket-send>
+                  {`${copy.send} ↗`}
+                </span>
+              )}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+    <p class="sr-only" aria-live="polite" data-icebreakers-live></p>
+  </div>
+</section>
+
+<style>
+  .icebreakers {
+    padding-block: clamp(96px, 16vh, 200px);
+  }
+  .icebreakers__kicker,
+  .icebreakers__lead {
+    color: var(--muted);
+  }
+  .icebreakers__head {
+    container-type: inline-size;
+  }
+  .icebreakers__title {
+    margin-top: 0.25em;
+    /* As big as the site's largest display type, never wider than the column: --em is the longest line's Anton width. */
+    font-size: min(var(--step-4), calc(98cqi / var(--em)));
+  }
+  .icebreakers__line {
+    display: block;
+    white-space: nowrap;
+  }
+  .icebreakers__note {
+    margin-top: 0.15em;
+    font-size: clamp(1.4rem, 1rem + 1.1vw, 2.1rem);
+    transform: rotate(-3deg);
+    transform-origin: left center;
+  }
+  .icebreakers__lead {
+    margin-top: clamp(40px, 7vh, 72px);
+  }
+  .icebreakers__deck {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+    gap: clamp(18px, 2.2vw, 30px);
+    margin-top: 20px;
+  }
+  /* The shadow has to follow the punched outline, so it sits on the slot, outside the ticket's mask. */
+  .icebreakers__slot {
+    filter: drop-shadow(0 16px 18px rgb(11 17 23 / 0.22));
+  }
+
+  .ticket {
+    --stub: clamp(84px, 6.5vw, 92px);
+    --notch: 9px;
+    --pad: clamp(18px, 1.8vw, 26px);
+    /* Spun place names size themselves to the ticket's width (see [data-fit]). */
+    container-type: inline-size;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--stub);
+    min-height: clamp(150px, 15vw, 184px);
+    border-radius: 16px;
+    background: var(--ticket-bg);
+    color: var(--ticket-fg);
+    transform: rotate(var(--tilt));
+    /* Half-moon punches top and bottom where the stub tears off. */
+    -webkit-mask:
+      radial-gradient(circle at calc(100% - var(--stub)) 0, transparent var(--notch), #000 calc(var(--notch) + 0.5px)) top / 100% 51%
+        no-repeat,
+      radial-gradient(circle at calc(100% - var(--stub)) 100%, transparent var(--notch), #000 calc(var(--notch) + 0.5px)) bottom / 100% 51%
+        no-repeat;
+    mask:
+      radial-gradient(circle at calc(100% - var(--stub)) 0, transparent var(--notch), #000 calc(var(--notch) + 0.5px)) top / 100% 51%
+        no-repeat,
+      radial-gradient(circle at calc(100% - var(--stub)) 100%, transparent var(--notch), #000 calc(var(--notch) + 0.5px)) bottom / 100% 51%
+        no-repeat;
+  }
+  .ticket__main {
+    display: grid;
+    align-content: space-between;
+    gap: 18px;
+    padding: var(--pad);
+  }
+  .ticket__link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    font-size: clamp(1.7rem, 1.25rem + 1.1vw, 2.35rem);
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+  /* The whole ticket is the link's hit area. */
+  .ticket__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  /* The mask clips anything outside the ticket, so focus draws inside it. The transparent outline is invisible here and
+     becomes a system colour in forced-colours mode, where the shadow is dropped. */
+  .ticket__link:focus-visible {
+    outline: none;
+  }
+  .ticket__link:focus-visible::after {
+    border-radius: 16px;
+    outline: 3px solid transparent;
+    outline-offset: -3px;
+    box-shadow: inset 0 0 0 3px var(--ticket-fg);
+  }
+  /* A block, so the roll can move it; long answers drop a size to fit where the question was. */
+  .ticket__text {
+    display: block;
+  }
+  /* Live track names can carry one very long word, which must break rather than run into the stub. */
+  .ticket__text[data-long] {
+    font-size: 0.66em;
+    overflow-wrap: anywhere;
+  }
+  /* A spun place name keeps to one line: prompt size, or smaller if its Anton width (--em) would overflow the line. */
+  .ticket__text[data-fit] {
+    white-space: nowrap;
+    font-size: min(1em, calc((100cqi - var(--stub) - 2 * var(--pad)) * 0.96 / var(--em)));
+  }
+  /* The tear-off stub, behind a perforated line. */
+  .ticket__stub {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 0 16px;
+    border-left: 2px dashed color-mix(in srgb, var(--ticket-fg) 40%, transparent);
+    /* Clicks fall through to the ticket's link, even while the stub is tugged; only the play button takes them. */
+    pointer-events: none;
+  }
+  .ticket__number {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+  .ticket__send,
+  .ticket__play {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  /* A real button above the stretched link, so a press plays instead of opening mail. */
+  .ticket__play {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+    padding: 4px 6px;
+    border: 1px solid color-mix(in srgb, currentColor 50%, transparent);
+    border-radius: 999px;
+    color: inherit;
+    background: none;
+    cursor: pointer;
+  }
+  .ticket__play:hover,
+  .ticket__play[aria-pressed='true'] {
+    background: color-mix(in srgb, currentColor 16%, transparent);
+  }
+  /* Inside the button: in the narrow stub an outer ring would run past the ticket's edge and be clipped by the mask. */
+  .ticket__play:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+  }
+  /* The favourite colour, used tiny. */
+  .ticket__send::before,
+  .ticket__play::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--signal);
+  }
+  /* Plays need script; without it the tickets are plain mail links. The display rule above would beat [hidden]. */
+  :global(html:not(.js)) .ticket__play,
+  .ticket__play[hidden],
+  .ticket__send[hidden] {
+    display: none;
+  }
+  /* Forced colours drop the ticket colours: an outline keeps each ticket's shape, and a pressed Rev takes the system
+     highlight instead of its tint. */
+  @media (forced-colors: active) {
+    .ticket {
+      outline: 2px solid CanvasText;
+      outline-offset: -2px;
+    }
+    .ticket__play[aria-pressed='true'] {
+      forced-color-adjust: none;
+      background: Highlight;
+      color: HighlightText;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ticket,
+    .ticket__stub {
+      transition: transform 0.6s var(--ease-out);
+    }
+    /* Hover is read from the slot, which never moves, so the lift cannot slide the ticket out from under the pointer. */
+    .icebreakers__slot:hover .ticket,
+    .ticket:has(:focus-visible) {
+      transform: rotate(0deg) translateY(-6px);
+    }
+    /* Pressing the card tugs the stub, like tearing it off; a press on a play button leaves the stub where it is. */
+    .ticket:has(.ticket__link:active) .ticket__stub {
+      transform: translateX(4px) rotate(3deg);
+      transition-duration: 0.15s;
+    }
+  }
+</style>
+
+<script>
+  import { initIcebreakers } from './icebreakers.client';
+  initIcebreakers();
+</script>

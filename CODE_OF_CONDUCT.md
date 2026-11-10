@@ -50,7 +50,7 @@ further defined and clarified by project maintainers.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project maintainer on [hi@visheshbansal.dev](mailto:hi@visheshbansal.dev). All
+reported by contacting the project maintainer on [hi@visheshb.com](mailto:hi@visheshb.com). All
 complaints will be reviewed and investigated and will result in a response that
 is deemed necessary and appropriate to the circumstances. The project team is
 obligated to maintain confidentiality with regard to the reporter of an incident.

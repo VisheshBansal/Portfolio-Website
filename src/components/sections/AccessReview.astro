@@ -1,0 +1,885 @@
+---
+/** "Before you ask", filed as an access review: each FAQ is a request and the visitor is the reviewer. */
+import { accessReview, type ReviewDecision } from '../../data/copy';
+import { padNumber } from '../../lib/format';
+import type { DecisionKind } from './accessReview.client';
+
+const KIND_BY_DECISION = {
+  Approved: 'approved',
+  'Approved with written permission': 'approved',
+  Denied: 'denied',
+  'Pending review': 'pending',
+} as const satisfies Record<ReviewDecision, DecisionKind>;
+const TALLY_ORDER: readonly DecisionKind[] = ['approved', 'denied', 'pending'];
+/** Each stamp lands at its own angle, cycling through these. */
+const STAMP_TILTS_DEG = [-6, -3, -7.5, -4.5, -2.5, -5.5] as const;
+/** Matches the six positioned dots in `.stamp__ink` and their spray offsets in the client. */
+const INK_DOT_COUNT = 6;
+const REQUEST_ID_DIGITS = 4;
+const TALLY_DIGITS = 2;
+const STAMP_ICON_PATH =
+  'M8 1.2a2.4 2.4 0 0 1 1.4 4.35V8h3.1A1.5 1.5 0 0 1 14 9.5v2H2v-2A1.5 1.5 0 0 1 3.5 8h3.1V5.55A2.4 2.4 0 0 1 8 1.2ZM2.5 13h11v1.6h-11Z';
+
+const requestId = (index: number) => `AR-${padNumber(index + 1, REQUEST_ID_DIGITS)}`;
+const formatTally = (count: number) => padNumber(count, TALLY_DIGITS);
+const capitalize = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
+
+/** "Approved with written permission" stamps as a large "Approved" over its small print. */
+function splitDecision(decision: ReviewDecision): { headline: string; smallPrint: string } {
+  const [headline = decision, ...rest] = decision.split(' ');
+  return { headline, smallPrint: rest.join(' ') };
+}
+
+const rows = accessReview.map((request, index) => {
+  const kind = KIND_BY_DECISION[request.decision];
+  const { headline, smallPrint } = splitDecision(request.decision);
+  return {
+    ...request,
+    id: requestId(index),
+    kind,
+    headline,
+    smallPrint,
+    tiltDeg: STAMP_TILTS_DEG[index % STAMP_TILTS_DEG.length] ?? STAMP_TILTS_DEG[0],
+    /** Anything but a plain approval carries a hidden "Approved" stamp for approve all. */
+    hasOverride: kind !== 'approved' || smallPrint.length > 0,
+  };
+});
+const tallies = TALLY_ORDER.map((kind) => ({ kind, label: capitalize(kind), count: rows.filter((row) => row.kind === kind).length }));
+const inkDots = Array.from({ length: INK_DOT_COUNT });
+---
+
+<section id="faq" class="ar" aria-labelledby="ar-title" data-ar>
+  <div class="ar__block night">
+    <div class="wrap">
+      <header class="ar__head">
+        <p class="ar__kicker mono">FAQ, filed as an access review</p>
+        <h2 id="ar-title" class="ar__title display" data-ar-title>
+          <span class="ar__l">Before</span>{' '}
+          <span class="ar__l">
+            you <span class="ar__ask">ask</span>
+          </span>
+        </h2>
+        <div class="ar__aside">
+          <p class="ar__lede">
+            Identity security is my day job, so the usual questions get the usual treatment: a request, a reviewer, a decision.
+          </p>
+          <p class="ar__hint" aria-hidden="true" data-ar-hand>
+            <span class="ar__hint-text hand" data-ar-write>
+              you’re the reviewer
+            </span>
+            <svg class="ar__arrow ar__arrow--hint" viewBox="0 0 80 96" fill="none">
+              <path pathLength="1" d="M66 4C58 20 36 16 32 36c-3 14 9 20 13 9 4-11-10-15-19-4-8 9-11 26-13 45" />
+              <path pathLength="1" d="M5 77l8 10 8-9" />
+            </svg>
+          </p>
+        </div>
+      </header>
+
+      <div class="ar__console">
+        <div class="ar__bar">
+          <div class="ar__status">
+            <p class="ar__live mono">
+              <i class="ar__led" aria-hidden="true"></i>Access review · live
+            </p>
+            <p class="ar__count">{rows.length} requests. 1 reviewer. No pressure.</p>
+          </div>
+          <div class="ar__actions">
+            <span class="ar__dont" aria-hidden="true" data-ar-hand>
+              <span class="ar__dont-text hand" data-ar-write>
+                <span data-dont="idle">please don’t</span>
+                <span data-dont="done">you did it anyway</span>
+              </span>
+              <svg class="ar__arrow ar__arrow--dont" viewBox="0 0 48 28" fill="none">
+                <path pathLength="1" d="M3 20C13 6 29 4 41 13" />
+                <path pathLength="1" d="M33 8.5l9 5-7.5 7" />
+              </svg>
+            </span>
+            <button type="button" class="ar__approve" aria-label="Approve all" data-ar-approve>
+              <span class="ar__face">
+                <svg class="ar__icon" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d={STAMP_ICON_PATH} />
+                </svg>
+                <span class="ar__labels mono">
+                  <span data-label="idle">Approve all</span>
+                  <span data-label="done">Undo</span>
+                </span>
+              </span>
+              <span class="ar__face ar__face--fill" aria-hidden="true">
+                <svg class="ar__icon" viewBox="0 0 16 16">
+                  <path d={STAMP_ICON_PATH} />
+                </svg>
+                <span class="ar__labels mono">
+                  <span data-label="idle">Approve all</span>
+                  <span data-label="done">Undo</span>
+                </span>
+              </span>
+            </button>
+          </div>
+          <div class="ar__toast" aria-hidden="true" data-ar-toast>
+            <p class="ar__toast-title mono" data-ar-toast-title></p>
+            <p class="ar__toast-msg" data-ar-toast-msg></p>
+          </div>
+          <p class="sr-only" role="status" data-ar-live></p>
+        </div>
+
+        <dl class="ar__tallies">
+          {tallies.map((tally) => (
+            <div class="ar__tally" data-kind={tally.kind}>
+              <dt class="mono">{tally.label}</dt>
+              <dd class="display">
+                <span class="ar__num" aria-hidden="true">
+                  <span data-ar-num={tally.kind}>{formatTally(tally.count)}</span>
+                </span>
+                <span class="sr-only" data-ar-sr={tally.kind}>
+                  {tally.count}
+                </span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <div class="ar__cols mono" aria-hidden="true">
+          <span>ID</span>
+          <span>Request</span>
+          <span>Decision</span>
+        </div>
+
+        <div class="ar__queue" data-ar-queue>
+          <ol class="ar__list">
+            {rows.map((row) => (
+              <li class="ar__row" data-ar-row data-id={row.id} data-kind={row.kind} style={`--rot:${row.tiltDeg}deg`}>
+                <span class="ar__flash" aria-hidden="true" data-ar-flash></span>
+                <h3 class="ar__req" data-ar-jolt>
+                  {row.request}
+                </h3>
+                <p class="ar__meta mono" data-ar-jolt>
+                  <span class="ar__id">{row.id}</span> <span aria-hidden="true">·</span> Reviewer: you
+                </p>
+                <div class="ar__decision" data-ar-decision>
+                  <span class="sr-only">Decision:</span>
+                  <span class="ar__await mono" aria-hidden="true" data-ar-await>
+                    Awaiting review<i>.</i>
+                    <i>.</i>
+                    <i>.</i>
+                  </span>
+                  <span class="stamp" data-kind={row.kind} data-stamp="base">
+                    <span class="stamp__main">{row.headline}</span>
+                    {row.smallPrint && <span class="stamp__sub">{` ${row.smallPrint}`}</span>}
+                    <span class="stamp__ring" aria-hidden="true" data-ring></span>
+                    <span class="stamp__ink" aria-hidden="true">
+                      {inkDots.map(() => (
+                        <i data-dot></i>
+                      ))}
+                    </span>
+                  </span>
+                  {row.hasOverride && (
+                    <span class="stamp" data-kind="approved" data-stamp="over" aria-hidden="true">
+                      <span class="stamp__main">Approved</span>
+                      <span class="stamp__ring" data-ring></span>
+                      <span class="stamp__ink">
+                        {inkDots.map(() => (
+                          <i data-dot></i>
+                        ))}
+                      </span>
+                    </span>
+                  )}
+                </div>
+                <p class="ar__note" data-ar-jolt>
+                  {row.note}
+                </p>
+              </li>
+            ))}
+          </ol>
+          <div class="ar__beam" aria-hidden="true" data-ar-beam>
+            <span class="ar__beam-tag mono" data-ar-tag>
+              Waiting for reviewer
+            </span>
+          </div>
+        </div>
+
+        <div class="ar__foot">
+          <p class="mono">End of queue</p>
+          <a class="ar__more" href="#contact">
+            Something I missed? Ask me directly <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ar {
+    /* Light in dark mode, where lime cannot carry text: dark green ink on a lime wash */
+    --ar-ok: light-dark(var(--signal), color-mix(in oklab, var(--signal) 32%, var(--contrast-fg)));
+    --ar-ok-fill: light-dark(color-mix(in oklab, var(--signal) 12%, transparent), color-mix(in oklab, var(--signal) 30%, transparent));
+    --ar-wait: var(--contrast-muted);
+    --ar-cols: minmax(7.5rem, 0.6fr) minmax(0, 2fr) minmax(15rem, 1fr);
+    --ar-gap: clamp(20px, 3vw, 56px);
+    position: relative;
+    padding: clamp(8px, 1.2vw, 20px);
+    overflow-x: clip;
+  }
+
+  .ar__block {
+    border-radius: var(--radius);
+    padding-block: clamp(72px, 10vw, 168px) clamp(48px, 6vw, 104px);
+  }
+
+  .ar__head {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+    row-gap: clamp(22px, 3vw, 40px);
+    align-items: end;
+    margin-bottom: clamp(52px, 7vw, 112px);
+  }
+  .ar__kicker {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--ar-wait);
+  }
+  .ar__kicker::before {
+    content: '';
+    width: 28px;
+    height: 1px;
+    background: currentColor;
+  }
+  .ar__title {
+    grid-column: 1 / -1;
+    font-size: var(--step-4);
+  }
+  .ar__l {
+    display: block;
+  }
+  .ar__title :global(.ar-line-mask) {
+    padding-block: 0.12em;
+    margin-block: -0.12em;
+  }
+  .ar__ask {
+    color: var(--contrast-accent);
+  }
+  .ar__aside {
+    grid-column: 1 / -1;
+    max-width: 34rem;
+  }
+  .ar__lede {
+    color: var(--contrast-fg-2);
+    text-wrap: pretty;
+  }
+  .ar__hint {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    margin-top: clamp(14px, 1.6vw, 22px);
+    transform: rotate(-3deg);
+    transform-origin: left center;
+  }
+  .ar__hint-text {
+    font-size: var(--step-2);
+    color: var(--contrast-accent);
+  }
+  .ar__arrow {
+    flex: none;
+    height: auto;
+    overflow: visible;
+  }
+  .ar__arrow path {
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1 2;
+    stroke-dashoffset: 0;
+  }
+  .ar__arrow--hint {
+    width: clamp(44px, 4.4vw, 64px);
+    color: var(--contrast-accent);
+    transform: translateY(42%);
+  }
+  .ar__arrow--hint path {
+    stroke-width: 2.8;
+  }
+  @media (min-width: 900px) {
+    .ar__title {
+      grid-column: 1 / span 7;
+    }
+    .ar__aside {
+      grid-column: 8 / -1;
+      justify-self: end;
+      padding-bottom: 0.5em;
+    }
+  }
+
+  .ar__console {
+    border-top: 2px solid var(--contrast-fg);
+  }
+  .ar__bar {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
+    padding-block: clamp(18px, 2vw, 28px);
+  }
+  .ar__live {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ar-wait);
+  }
+  .ar__led {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ar-ok);
+  }
+  .ar__led::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--ar-ok);
+    --ping-scale: 3.2;
+    animation: ping 2.4s var(--ease-out) infinite;
+  }
+  .ar__count {
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  .ar__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px 10px;
+    margin-left: auto;
+  }
+  .ar__dont {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transform: rotate(-4deg);
+  }
+  .ar__dont-text {
+    display: grid;
+    font-size: var(--step-1);
+    color: var(--contrast-ink);
+    white-space: nowrap;
+  }
+  .ar__dont-text > span {
+    grid-area: 1 / 1;
+    justify-self: end;
+    transition:
+      opacity 0.4s var(--ease-out),
+      transform 0.6s var(--ease-out);
+  }
+  [data-dont='done'] {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .ar[data-approved] [data-dont='idle'] {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  .ar[data-approved] [data-dont='done'] {
+    opacity: 1;
+    transform: none;
+  }
+  .ar__arrow--dont {
+    width: 36px;
+    color: var(--contrast-ink);
+  }
+  .ar__arrow--dont path {
+    stroke-width: 2.2;
+  }
+  @media (max-width: 420px) {
+    .ar__arrow--dont {
+      display: none;
+    }
+  }
+  .ar__actions:has(.ar__approve:focus-visible) .ar__dont {
+    animation: ar-wiggle 0.7s var(--ease-out);
+  }
+  @media (hover: hover) {
+    .ar__actions:has(.ar__approve:hover) .ar__dont {
+      animation: ar-wiggle 0.7s var(--ease-out);
+    }
+  }
+  @keyframes ar-wiggle {
+    0%,
+    100% {
+      transform: rotate(-4deg);
+    }
+    25% {
+      transform: rotate(-10deg) translateX(-3px);
+    }
+    50% {
+      transform: rotate(1deg);
+    }
+    75% {
+      transform: rotate(-6deg);
+    }
+  }
+
+  .ar__approve {
+    position: relative;
+    display: grid;
+    border: 1.5px solid var(--contrast-fg);
+    border-radius: 999px;
+    color: var(--contrast-fg);
+    transition: transform 0.25s var(--ease-out);
+  }
+  .ar__approve:active {
+    transform: scale(0.96);
+  }
+  .ar__face {
+    grid-area: 1 / 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 18px 11px 14px;
+    border-radius: inherit;
+  }
+  .ar__face--fill {
+    background: var(--ar-ok);
+    color: var(--contrast-bg);
+    clip-path: inset(0% 100% 0% 0% round 999px);
+    transition: clip-path 0.55s var(--ease-out);
+  }
+  .ar__approve:focus-visible .ar__face--fill {
+    clip-path: inset(0% 0% 0% 0% round 999px);
+  }
+  @media (hover: hover) {
+    .ar__approve:hover .ar__face--fill {
+      clip-path: inset(0% 0% 0% 0% round 999px);
+    }
+  }
+  .ar__icon {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+  .ar__labels {
+    display: grid;
+  }
+  .ar__labels > span {
+    grid-area: 1 / 1;
+  }
+  [data-label='done'] {
+    visibility: hidden;
+  }
+  .ar[data-approved] [data-label='idle'] {
+    visibility: hidden;
+  }
+  .ar[data-approved] [data-label='done'] {
+    visibility: visible;
+  }
+
+  .ar__toast {
+    position: absolute;
+    z-index: 6;
+    top: calc(100% - 4px);
+    right: 0;
+    width: min(23rem, 100%);
+    padding: 16px 18px 18px;
+    border: 1px solid var(--rule);
+    border-radius: 16px;
+    background: var(--surface);
+    color: var(--fg);
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+    transform-origin: top right;
+    pointer-events: none;
+    transition:
+      opacity 0.3s var(--ease-out),
+      transform 0.5s var(--ease-out);
+  }
+  .ar__toast.is-on {
+    opacity: 1;
+    transform: none;
+  }
+  .ar__toast-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--fg-2);
+  }
+  .ar__toast-title::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  .ar__toast-msg {
+    margin-top: 8px;
+    line-height: 1.4;
+    text-wrap: pretty;
+  }
+
+  .ar__tallies {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-block: 1px solid var(--contrast-rule);
+  }
+  .ar__tally {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: clamp(14px, 1.8vw, 26px) clamp(12px, 1.8vw, 28px);
+  }
+  .ar__tally:first-child {
+    padding-left: 0;
+  }
+  .ar__tally + .ar__tally {
+    border-left: 1px solid var(--contrast-rule);
+  }
+  .ar__tally dt {
+    color: var(--ar-wait);
+  }
+  .ar__tally dd {
+    font-size: var(--step-3);
+    line-height: 0.9;
+  }
+  .ar__num {
+    display: inline-block;
+    overflow: clip;
+    padding-block: 0.08em;
+    vertical-align: top;
+  }
+  .ar__num > span {
+    display: inline-block;
+  }
+  .ar__tally[data-kind='approved'] dd {
+    color: var(--ar-ok);
+  }
+  .ar__tally[data-kind='denied'] dd {
+    color: var(--contrast-ink);
+  }
+  .ar__tally[data-kind='pending'] dd {
+    color: var(--ar-wait);
+  }
+
+  .ar__cols {
+    display: none;
+  }
+  .ar__queue {
+    position: relative;
+  }
+  .ar__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'meta' 'req' 'decision' 'note';
+    row-gap: 12px;
+    padding-block: clamp(24px, 2.8vw, 40px);
+  }
+  .ar__row + .ar__row {
+    border-top: 1px solid var(--contrast-rule);
+  }
+  @media (min-width: 760px) {
+    .ar__cols {
+      display: grid;
+      grid-template-columns: var(--ar-cols);
+      column-gap: var(--ar-gap);
+      padding-block: 16px 14px;
+      border-bottom: 1px solid var(--contrast-rule);
+      color: var(--ar-wait);
+    }
+    .ar__cols span:last-child {
+      text-align: center;
+    }
+    .ar__row {
+      grid-template-columns: var(--ar-cols);
+      grid-template-areas: 'meta req decision' 'meta note decision';
+      grid-template-rows: auto 1fr;
+      column-gap: var(--ar-gap);
+      row-gap: 10px;
+    }
+  }
+  .ar__flash {
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ar__req {
+    grid-area: req;
+    font-size: var(--step-1);
+    font-weight: 600;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .ar__meta {
+    grid-area: meta;
+    color: var(--ar-wait);
+  }
+  .ar__id {
+    color: var(--contrast-fg);
+  }
+  .ar__note {
+    grid-area: note;
+    max-width: 52ch;
+    color: var(--contrast-fg-2);
+    text-wrap: pretty;
+  }
+  @media (min-width: 760px) {
+    .ar__meta {
+      display: flex;
+      flex-direction: column;
+      padding-top: 0.35em;
+    }
+    .ar__meta > span[aria-hidden] {
+      display: none;
+    }
+  }
+
+  .ar__decision {
+    grid-area: decision;
+    position: relative;
+    display: grid;
+    align-items: center;
+    justify-items: start;
+    min-height: 4.5rem;
+    padding: 6px 4px;
+  }
+  .ar__decision > * {
+    grid-area: 1 / 1;
+  }
+  @media (min-width: 760px) {
+    .ar__decision {
+      justify-items: center;
+      align-self: center;
+    }
+  }
+
+  .ar__await {
+    display: inline-flex;
+    padding: 0.95em 1.15em;
+    border: 1px dashed var(--contrast-rule);
+    border-radius: 9px;
+    color: var(--ar-wait);
+    opacity: 0;
+  }
+  .ar__await i {
+    font-style: normal;
+    animation: ar-blink 1.4s infinite;
+  }
+  .ar__await i:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .ar__await i:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  @keyframes ar-blink {
+    0%,
+    100% {
+      opacity: 0.15;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .stamp {
+    --ink: var(--ar-wait);
+    position: relative;
+    display: inline-grid;
+    justify-items: center;
+    gap: 0.35em;
+    max-width: 100%;
+    padding: 0.62em 0.95em 0.56em;
+    border: 2px solid var(--ink);
+    border-radius: 9px;
+    background: var(--stamp-fill, transparent);
+    color: var(--ink);
+    line-height: 1;
+    text-align: center;
+    transform: rotate(var(--rot, -5deg));
+  }
+  .stamp::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid var(--ink);
+    border-radius: 6px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .stamp[data-kind='approved'] {
+    --ink: var(--ar-ok);
+    --stamp-fill: var(--ar-ok-fill);
+  }
+  .stamp[data-kind='denied'] {
+    --ink: var(--contrast-ink);
+  }
+  .stamp[data-kind='pending'],
+  .stamp[data-kind='pending']::before {
+    border-style: dashed;
+  }
+  .stamp[data-stamp='over'] {
+    visibility: hidden;
+    opacity: 0;
+  }
+  .stamp__main {
+    font-family: var(--font-display);
+    font-weight: var(--display-weight);
+    font-size: var(--step-1);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .stamp__sub {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+  .stamp__ring {
+    position: absolute;
+    inset: -2px;
+    border: 2px solid var(--ink);
+    border-radius: 11px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .stamp__ink {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .stamp__ink i {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--ink);
+    opacity: 0;
+  }
+  .stamp__ink i:nth-child(even) {
+    width: 3px;
+    height: 3px;
+  }
+  .stamp__ink i:nth-child(1) {
+    left: -2px;
+    top: 24%;
+  }
+  .stamp__ink i:nth-child(2) {
+    left: -2px;
+    top: 72%;
+  }
+  .stamp__ink i:nth-child(3) {
+    right: -2px;
+    top: 30%;
+  }
+  .stamp__ink i:nth-child(4) {
+    right: -2px;
+    top: 78%;
+  }
+  .stamp__ink i:nth-child(5) {
+    left: 30%;
+    top: -2px;
+  }
+  .stamp__ink i:nth-child(6) {
+    left: 66%;
+    bottom: -2px;
+  }
+
+  .ar__beam {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--contrast-ink);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .ar__beam::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -3.5px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--contrast-ink);
+  }
+  .ar__beam-tag {
+    position: absolute;
+    top: 8px;
+    right: 0;
+    padding: 5px 10px;
+    border: 1px solid var(--contrast-ink);
+    border-radius: 999px;
+    background: var(--contrast-bg);
+    color: var(--contrast-ink);
+    white-space: nowrap;
+  }
+
+  .ar__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+    padding-top: 20px;
+    border-top: 2px solid var(--contrast-fg);
+  }
+  .ar__foot p {
+    color: var(--ar-wait);
+  }
+  .ar__more {
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.28em;
+  }
+  .ar__more:hover {
+    text-decoration-color: var(--contrast-accent);
+  }
+
+  :global(html:not(.js)) .ar__actions {
+    visibility: hidden;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js:not(.ready)) .ar__title {
+      visibility: hidden;
+    }
+    :global(.js:not(.ready)) .stamp[data-stamp='base'] {
+      opacity: 0;
+    }
+    :global(.js:not(.ready)) .ar__await {
+      opacity: 1;
+    }
+    :global(.js:not(.ready)) [data-ar-write] {
+      clip-path: inset(-25% 100% -25% -6%);
+    }
+    :global(.js:not(.ready)) .ar__arrow path {
+      stroke-dashoffset: 1.01;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ar__led::after,
+    .ar__await i,
+    .ar__dont {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { whenIdle } from '../../lib/motion';
+  import { initAccessReview } from './accessReview.client';
+  whenIdle(initAccessReview);
+</script>

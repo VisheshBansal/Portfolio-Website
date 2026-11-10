@@ -1,0 +1,524 @@
+---
+/**
+ * Ambition: the big plans as a launch sequence. A scrubbed pen strikes through what is done while the
+ * countdown ticks down beside the list and holds on what is still open.
+ */
+import { ambitions } from '../../data/copy';
+import { padNumber } from '../../lib/format';
+
+/** Done items first: the countdown runs through them, then holds. */
+const checklist = [...ambitions].sort((left, right) => Number(right.done) - Number(left.done));
+const totalCount = checklist.length;
+const doneCount = checklist.filter((ambition) => ambition.done).length;
+const openCount = totalCount - doneCount;
+
+const splitWords = (text: string) => text.split(/\s+/).filter(Boolean);
+const capitalize = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
+
+/** The headline only corrects itself when the data backs it up. */
+function correctionFor(done: number, total: number): 'all' | 'most' | null {
+  if (done === total) return 'all';
+  if (done > total / 2) return 'most';
+  return null;
+}
+
+const correction = correctionFor(doneCount, totalCount);
+const headline = `Big plans. ${correction ? capitalize(correction) : 'Some'} crossed off.`;
+/** Clock readings T-(open) to T-(total). The strip starts on the last and steps back one per crossed item. */
+const countdownTicks = Array.from({ length: doneCount + 1 }, (_, step) => padNumber(openCount + step));
+---
+
+<section id="ambition" class="amb" aria-labelledby="amb-title" data-amb>
+  <div class="wrap">
+    <header class="amb__head" data-head>
+      <p class="amb__kicker mono">
+        <span class="amb__kline" aria-hidden="true" data-kline></span>
+        <span data-kick>Ambition</span>
+        <span data-kick>
+          {doneCount} of {totalCount} crossed off
+        </span>
+      </p>
+      <h2 id="amb-title" class="amb__title display">
+        <span class="sr-only">{headline}</span>
+        <span class="amb__vis" aria-hidden="true">
+          <span class="amb__t1">
+            <span class="w">
+              <span class="wi">Big</span>
+            </span>{' '}
+            <span class="w">
+              <span class="wi">
+                plans<span class="amb__dot">.</span>
+              </span>
+            </span>
+          </span>
+          <span class="amb__t2">
+            {correction ? (
+              <span class="amb__fix" data-fix>
+                <span class="w">
+                  <span class="wi">Some</span>
+                </span>
+                <svg class="amb__ink" data-fix-ink></svg>
+                <span class="amb__fix-word hand" data-fix-word>
+                  {correction}
+                </span>
+              </span>
+            ) : (
+              <span class="w">
+                <span class="wi">Some</span>
+              </span>
+            )}{' '}
+            <span class="w">
+              <span class="wi">crossed</span>
+            </span>{' '}
+            <span class="w">
+              <span class="wi">
+                off<span class="amb__dot">.</span>
+              </span>
+            </span>
+          </span>
+        </span>
+      </h2>
+    </header>
+
+    <div class="amb__body">
+      <ol class="amb__list">
+        {checklist.map((ambition, index) => {
+          const words = splitWords(ambition.text);
+          const lastWordIndex = words.length - 1;
+          return (
+            <li class:list={['amb__row', ambition.done ? 'is-done' : 'is-open']} data-row>
+              <span class="amb__rule" aria-hidden="true" data-rule></span>
+              <span class="amb__idx mono" aria-hidden="true" data-idx>
+                T-{padNumber(totalCount - index)}
+              </span>
+              <p class="amb__text display" data-text>
+                <span class="sr-only">{ambition.done ? `${ambition.text}. Crossed off.` : `${ambition.text}.`}</span>
+                <span class="amb__words" aria-hidden="true" data-words>
+                  {words.map((word, wordIndex) => (
+                    <>
+                      {wordIndex > 0 && ' '}
+                      <span class="w">
+                        <span class="wi">
+                          {word}
+                          {!ambition.done && wordIndex === lastWordIndex && <span class="amb__caret" />}
+                        </span>
+                      </span>
+                    </>
+                  ))}
+                </span>
+                {ambition.done && <svg class="amb__ink" aria-hidden="true" data-ink></svg>}
+              </p>
+              {!ambition.done && (
+                <span class="amb__tag mono" data-tag>
+                  <span class="amb__pulse" aria-hidden="true"></span>In progress
+                </span>
+              )}
+              {ambition.note && (
+                <p class="amb__note hand">
+                  <svg class="amb__arrow" viewBox="0 0 48 40" aria-hidden="true">
+                    <path data-arrow d="M44 34C30 36 14 30 9 8M6.3 16.6L9 8l6.1 6.6" />
+                  </svg>
+                  <span class="amb__note-text" data-note>
+                    {ambition.note}
+                  </span>
+                </p>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+
+      <div class="amb__count" aria-hidden="true" data-count>
+        <div class="amb__count-in">
+          <p class="amb__count-label mono" data-cin>
+            Launch sequence
+          </p>
+          <p class="amb__clock display" data-cin>
+            <span class="amb__clock-t">T-</span>
+            <span class="amb__roll">
+              <span class="amb__strip" data-strip>
+                {countdownTicks.map((tick) => (
+                  <span>{tick}</span>
+                ))}
+              </span>
+            </span>
+          </p>
+          <p class="amb__cap" data-cin>
+            <span class="amb__cap-run mono" data-run>
+              Counting down
+            </span>
+            <span class="amb__cap-hold hand" data-hold>
+              and holding
+            </span>
+          </p>
+          <span class="amb__bar" data-cin>
+            {checklist.map((ambition) => (
+              <span class:list={['amb__seg', ambition.done ? 'is-done' : 'is-open']}>
+                <span class="amb__fill" data-fill></span>
+              </span>
+            ))}
+          </span>
+        </div>
+      </div>
+
+      <p class="amb__foot mono" data-foot>
+        <span class="amb__foot-t">T-0</span> keeps moving. On purpose.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .amb {
+    position: relative;
+    padding-block: clamp(5.5rem, 13vw, 12rem) clamp(5rem, 11vw, 10rem);
+    overflow-x: clip;
+  }
+
+  .amb__kicker {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.4rem 1.5rem;
+    padding-top: 0.95rem;
+    color: var(--fg-2);
+  }
+  .amb__kline,
+  .amb__rule {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: var(--rule);
+    transform-origin: 0 50%;
+  }
+
+  .amb__title {
+    margin-top: clamp(1.75rem, 4.5vw, 4rem);
+  }
+  .amb__t1,
+  .amb__t2 {
+    display: block;
+  }
+  .amb__t1 {
+    font-size: var(--step-5);
+  }
+  .amb__t2 {
+    font-size: var(--step-4);
+    margin-top: 0.46em;
+  }
+  .amb__dot {
+    color: var(--accent);
+  }
+  @media (min-width: 1024px) {
+    .amb__t2 {
+      text-align: right;
+    }
+  }
+
+  /* Word masks: .wi rises inside .w. Padding offsets keep glyph edges unclipped with zero layout cost. */
+  .w {
+    display: inline-block;
+    vertical-align: top;
+    overflow: hidden;
+    padding: 0.12em 0.04em 0.18em;
+    margin: -0.12em -0.04em -0.18em;
+  }
+  .wi {
+    display: inline-block;
+  }
+
+  .amb__fix {
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+  }
+  .amb__fix-word {
+    position: absolute;
+    left: 0.06em;
+    bottom: 92%;
+    font-size: 0.4em;
+    text-transform: none;
+    letter-spacing: 0;
+    white-space: nowrap;
+    transform: rotate(-7deg);
+    transform-origin: 0 100%;
+  }
+
+  .amb__ink {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    overflow: visible;
+    pointer-events: none;
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 0.085em;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .amb__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'list' 'count' 'foot';
+    margin-top: clamp(3rem, 8vw, 7.5rem);
+  }
+  .amb__list {
+    grid-area: list;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .amb__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'idx tag' 'text text' 'sub sub';
+    align-items: start;
+    column-gap: 1rem;
+    padding-block: clamp(1.1rem, 2.4vw, 2rem) clamp(1.3rem, 2.6vw, 2.25rem);
+  }
+  .amb__idx {
+    grid-area: idx;
+    color: var(--fg-2);
+  }
+  .is-open .amb__idx {
+    color: var(--accent);
+  }
+  .amb__text {
+    grid-area: text;
+    position: relative;
+    margin-top: 0.75rem;
+    font-size: var(--step-3);
+  }
+  .is-done .amb__words {
+    opacity: 0.6;
+  }
+
+  .amb__tag {
+    grid-area: tag;
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .amb__pulse {
+    position: relative;
+    width: 0.6em;
+    height: 0.6em;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .amb__pulse::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    animation: amb-ping 2.4s var(--ease-out) infinite;
+  }
+  .amb__caret {
+    display: inline-block;
+    width: 0.075em;
+    height: 0.84em;
+    margin-left: 0.12em;
+    vertical-align: top;
+    background: var(--accent);
+    animation: amb-blink 2.4s ease-in-out infinite;
+  }
+
+  .amb__note {
+    grid-area: sub;
+    justify-self: start;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.25em;
+    margin: 0.25em 0 0 clamp(0.5rem, 10%, 7rem);
+    font-size: var(--step-2);
+    transform: rotate(-3deg);
+    transform-origin: 0 50%;
+  }
+  .amb__arrow {
+    flex: none;
+    width: 1.05em;
+    height: auto;
+    margin-bottom: 0.45em;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (min-width: 760px) {
+    .amb__row {
+      grid-template-columns: 4.75rem minmax(0, 1fr);
+      grid-template-areas: 'idx text' '. sub';
+      column-gap: clamp(1rem, 2vw, 2rem);
+    }
+    .amb__idx {
+      padding-top: 0.3em;
+    }
+    .amb__text {
+      margin-top: 0;
+    }
+    .amb__tag {
+      grid-area: sub;
+      justify-self: start;
+      margin-top: 0.95rem;
+    }
+  }
+
+  .amb__count {
+    grid-area: count;
+  }
+  .amb__count-in {
+    display: grid;
+    justify-items: start;
+    gap: 0.85rem;
+    padding-top: clamp(2.75rem, 8vw, 4.5rem);
+  }
+  .amb__count-label,
+  .amb__cap-run {
+    color: var(--fg-2);
+  }
+  .amb__clock {
+    display: flex;
+    font-size: var(--step-5);
+    line-height: 1;
+  }
+  .amb__clock-t {
+    color: var(--muted);
+  }
+  .amb__roll {
+    display: block;
+    height: 1em;
+    overflow: hidden;
+  }
+  .amb__strip,
+  .amb__strip > span {
+    display: block;
+  }
+  .amb__strip > span {
+    height: 1em;
+  }
+  .amb__cap {
+    display: grid;
+    align-items: end;
+  }
+  .amb__cap > * {
+    grid-area: 1 / 1;
+  }
+  .amb__cap-run {
+    opacity: 0;
+  }
+  .amb__cap-hold {
+    font-size: var(--step-2);
+  }
+  .amb__bar {
+    display: flex;
+    gap: 6px;
+    width: min(100%, 19rem);
+  }
+  .amb__seg {
+    flex: 1;
+    height: 5px;
+    border-radius: 99px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--fg) 12%, transparent);
+  }
+  .amb__fill {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform-origin: 0 50%;
+  }
+  .is-open > .amb__fill {
+    opacity: 0.22;
+    animation: amb-breathe 2.4s ease-in-out infinite;
+  }
+
+  .amb__foot {
+    grid-area: foot;
+    margin-top: clamp(1.5rem, 4vw, 3rem);
+    color: var(--fg-2);
+  }
+  .amb__foot-t {
+    color: var(--accent);
+  }
+
+  @media (min-width: 1024px) {
+    .amb__body {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 11fr);
+      grid-template-areas: 'count list' 'count foot';
+      column-gap: var(--gutter);
+    }
+    .amb__count-in {
+      position: sticky;
+      top: clamp(6rem, 24vh, 13rem);
+      padding-top: 0.2rem;
+    }
+    .amb__clock {
+      font-size: min(var(--step-5), 12.5vw);
+    }
+  }
+
+  :global(html:not(.js)) .is-done .wi,
+  :global(html:not(.js)) .amb__fix .wi {
+    text-decoration: line-through;
+    text-decoration-color: var(--accent);
+    text-decoration-thickness: 0.085em;
+  }
+
+  @keyframes amb-ping {
+    0% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    70%,
+    100% {
+      transform: scale(3.2);
+      opacity: 0;
+    }
+  }
+  @keyframes amb-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.15;
+    }
+  }
+  @keyframes amb-breathe {
+    0%,
+    100% {
+      opacity: 0.15;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .amb__count-in {
+      position: static;
+    }
+    .amb__pulse::after,
+    .amb__caret,
+    .is-open > .amb__fill {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { whenIdle } from '../../lib/motion';
+  import { initAmbition } from './ambition.client';
+  whenIdle(initAmbition);
+</script>

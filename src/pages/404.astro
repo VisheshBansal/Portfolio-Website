@@ -1,0 +1,154 @@
+---
+/** Any unknown path (Cloudflare serves this with a 404): lost in the fog, one click from the bridge. */
+import Base from '../layouts/Base.astro';
+import Cursor from '../components/layout/Cursor.astro';
+import { notFound } from '../data/copy';
+import { person } from '../data/site';
+---
+
+<Base title={`Lost in the fog · ${person.name}`} description={notFound.body} noindex>
+  <main class="lost">
+    <canvas class="lost__fog" data-lost-fog aria-hidden="true"></canvas>
+    <a class="lost__mark display" href="/" aria-label="VB, home">
+      VB
+    </a>
+    <div class="lost__copy wrap">
+      <p class="lost__code mono">{notFound.code}</p>
+      <h1 class="lost__title display">
+        {notFound.title.map((line) => (
+          <span class="mask-line">
+            <span>{line}</span>
+          </span>
+        ))}
+      </h1>
+      <p class="lost__body">{notFound.body}</p>
+      <div class="lost__actions">
+        <a class="pill display" href="/">
+          <span>{notFound.cta}</span>
+          <span class="pill__icon" aria-hidden="true">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2.5 8h11M9 3.5 13.5 8 9 12.5"></path>
+            </svg>
+          </span>
+        </a>
+        <p class="lost__note hand">{notFound.note}</p>
+      </div>
+    </div>
+  </main>
+  <Cursor />
+</Base>
+
+<style>
+  .lost {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: 100svh;
+    padding-block: clamp(88px, 14vh, 160px) clamp(56px, 10vh, 120px);
+    overflow: hidden;
+  }
+  .lost__fog {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .lost__mark {
+    position: absolute;
+    top: clamp(14px, 2.4vh, 24px);
+    left: var(--gutter);
+    z-index: 1;
+    font-size: 1.5rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .lost__copy {
+    position: relative;
+    z-index: 1;
+  }
+  .lost__code {
+    color: var(--muted);
+  }
+  .lost__title {
+    margin-top: 0.12em;
+    font-size: var(--step-5);
+    color: var(--accent);
+  }
+  .lost__body {
+    max-width: 34ch;
+    margin-top: clamp(20px, 3vh, 32px);
+    font-size: var(--step-1);
+    line-height: 1.4;
+    color: var(--fg-2);
+    text-wrap: pretty;
+  }
+  .lost__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px 32px;
+    margin-top: clamp(28px, 4.5vh, 48px);
+  }
+  .lost__note {
+    font-size: clamp(1.4rem, 1rem + 1.1vw, 2.1rem);
+    transform: rotate(-4deg);
+  }
+
+  /* Entrance in CSS alone, only when motion is welcome: delayed starts would otherwise hide the copy. */
+  @media (prefers-reduced-motion: no-preference) {
+    .lost__title .mask-line > span {
+      animation: lost-rise 1.1s var(--ease-out) both;
+    }
+    .lost__title .mask-line:nth-child(2) > span {
+      animation-delay: 0.08s;
+    }
+    .lost__code,
+    .lost__body,
+    .lost__actions {
+      animation: lost-fade 0.9s var(--ease-out) 0.3s both;
+    }
+    .lost__code {
+      animation-delay: 0s;
+    }
+    .lost__actions {
+      animation-delay: 0.42s;
+    }
+  }
+  @keyframes lost-rise {
+    from {
+      transform: translateY(110%);
+    }
+  }
+  @keyframes lost-fade {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+</style>
+
+<script>
+  import { query } from '../lib/dom';
+  import { cssVar, onThemeChange } from '../lib/theme';
+  import { createFog } from '../lib/webgl/fog';
+
+  const fog = createFog(query<HTMLCanvasElement>('[data-lost-fog]'), {
+    mode: 'ambient',
+    color: cssVar('--fog-wisp'),
+    resolution: 0.45,
+    animate: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  });
+  if (fog) {
+    onThemeChange(() => fog.setColor(cssVar('--fog-wisp')));
+    // The fog parts around the pointer, so you can wave your way out.
+    window.addEventListener(
+      'pointermove',
+      (event) => {
+        fog.state.pointerX = event.clientX / window.innerWidth;
+        fog.state.pointerY = event.clientY / window.innerHeight;
+      },
+      { passive: true },
+    );
+  }
+</script>
