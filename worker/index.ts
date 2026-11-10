@@ -94,8 +94,14 @@ async function onRepeat(env: Env): Promise<Response> {
   }
 }
 
+/** The site's 404 page (dist/404.html), served with a 404 status for anything that is not an asset, link or API. */
+async function notFound(request: Request, env: Env): Promise<Response> {
+  const page = await env.ASSETS.fetch(new Request(new URL('/404', request.url)));
+  return new Response(page.body, { status: 404, headers: page.headers });
+}
+
 export default {
-  fetch(request: Request, env: Env): Response | Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(request.url);
     if (pathname === ON_REPEAT_PATH) return onRepeat(env);
     const parts = pathname
@@ -104,6 +110,8 @@ export default {
       .map((part) => part.toLowerCase());
     const [first = ''] = parts;
     const target = SHORT_LINKS.get(first) ?? (first === 'gh' ? github(parts) : null);
-    return target ? Response.redirect(target, MOVED_PERMANENTLY) : env.ASSETS.fetch(request);
+    if (target) return Response.redirect(target, MOVED_PERMANENTLY);
+    const asset = await env.ASSETS.fetch(request);
+    return asset.status === 404 ? notFound(request, env) : asset;
   },
 };

@@ -7,7 +7,8 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "not_found_handling": "404-page",
+    // No not_found_handling: with one set, browser navigations to unknown paths get it straight from the asset layer
+    // and never reach the Worker, so short links break. The Worker serves the 404 page instead.
     "html_handling": "auto-trailing-slash",
   },
   // Custom domains: the deploy adds their DNS records and certificates.
